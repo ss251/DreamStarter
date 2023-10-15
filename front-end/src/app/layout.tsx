@@ -11,19 +11,35 @@ import { options, modalConfig, openloginAdapter, web3AuthConfig } from "@/web3";
 import { Web3AuthModalPack, Web3AuthConfig } from "@safe-global/auth-kit";
 import { Web3AuthOptions } from "@web3auth/modal";
 import { OpenloginAdapter } from "@web3auth/openlogin-adapter";
-import { ADAPTER_EVENTS, CHAIN_NAMESPACES, SafeEventEmitterProvider, UserInfo, WALLET_ADAPTERS } from "@web3auth/base";
+import {
+  ADAPTER_EVENTS,
+  CHAIN_NAMESPACES,
+  SafeEventEmitterProvider,
+  UserInfo,
+  WALLET_ADAPTERS,
+} from "@web3auth/base";
 import { Web3AuthEventListener } from "@safe-global/auth-kit";
 import { AuthKitSignInData } from "@safe-global/auth-kit";
 
-const connectedHandler: Web3AuthEventListener = (data) => console.log("CONNECTED", data);
-const disconnectedHandler: Web3AuthEventListener = (data) => console.log("DISCONNECTED", data);
+const connectedHandler: Web3AuthEventListener = (data) =>
+  console.log("CONNECTED", data);
+const disconnectedHandler: Web3AuthEventListener = (data) =>
+  console.log("DISCONNECTED", data);
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const [web3AuthModalPack, setWeb3AuthModalPack] = useState<Web3AuthModalPack>();
-  const [safeAuthSignInResponse, setSafeAuthSignInResponse] = useState<AuthKitSignInData | null>(null);
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const [web3AuthModalPack, setWeb3AuthModalPack] =
+    useState<Web3AuthModalPack>();
+  const [safeAuthSignInResponse, setSafeAuthSignInResponse] =
+    useState<AuthKitSignInData | null>(null);
   const [userInfo, setUserInfo] = useState<Partial<UserInfo>>();
 
-  const [provider, setProvider] = useState<SafeEventEmitterProvider | null>(null);
+  const [provider, setProvider] = useState<SafeEventEmitterProvider | null>(
+    null
+  );
 
   useEffect(() => {
     (async () => {
@@ -31,15 +47,28 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         txServiceUrl: "https://safe-transaction-goerli.safe.global",
       });
 
-      await web3AuthModalPack.init({ options, adapters: [openloginAdapter], modalConfig });
+      await web3AuthModalPack.init({
+        options,
+        adapters: [openloginAdapter],
+        modalConfig,
+      });
       web3AuthModalPack.subscribe(ADAPTER_EVENTS.CONNECTED, connectedHandler);
 
-      web3AuthModalPack.subscribe(ADAPTER_EVENTS.DISCONNECTED, disconnectedHandler);
+      web3AuthModalPack.subscribe(
+        ADAPTER_EVENTS.DISCONNECTED,
+        disconnectedHandler
+      );
 
       setWeb3AuthModalPack(web3AuthModalPack);
       return () => {
-        web3AuthModalPack.unsubscribe(ADAPTER_EVENTS.CONNECTED, connectedHandler);
-        web3AuthModalPack.unsubscribe(ADAPTER_EVENTS.DISCONNECTED, disconnectedHandler);
+        web3AuthModalPack.unsubscribe(
+          ADAPTER_EVENTS.CONNECTED,
+          connectedHandler
+        );
+        web3AuthModalPack.unsubscribe(
+          ADAPTER_EVENTS.DISCONNECTED,
+          disconnectedHandler
+        );
       };
     })();
   }, []);
@@ -75,8 +104,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className={taviraj.className}>
+        <div className="absolute glow left-0 top-10"></div>
+        <div className="absolute glow-right right-0 top-10"></div>
         <div>
-          <Nav onLogin={login} onLogout={logout} userInfo={userInfo} signInInfo={safeAuthSignInResponse} isLoggedIn={!!provider} />
+          <Nav
+            onLogin={login}
+            onLogout={logout}
+            userInfo={userInfo}
+            signInInfo={safeAuthSignInResponse}
+            isLoggedIn={!!provider}
+          />
         </div>
 
         <div>{children}</div>

@@ -5,12 +5,20 @@ import { options, modalConfig, openloginAdapter, web3AuthConfig } from "@/web3";
 import { Web3AuthModalPack, Web3AuthConfig } from "@safe-global/auth-kit";
 import { Web3AuthOptions } from "@web3auth/modal";
 import { OpenloginAdapter } from "@web3auth/openlogin-adapter";
-import { ADAPTER_EVENTS, CHAIN_NAMESPACES, SafeEventEmitterProvider, UserInfo, WALLET_ADAPTERS } from "@web3auth/base";
+import {
+  ADAPTER_EVENTS,
+  CHAIN_NAMESPACES,
+  SafeEventEmitterProvider,
+  UserInfo,
+  WALLET_ADAPTERS,
+} from "@web3auth/base";
 import { Web3AuthEventListener } from "@safe-global/auth-kit";
 import { AuthKitSignInData } from "@safe-global/auth-kit";
 // import {SafeGetUser}
-const connectedHandler: Web3AuthEventListener = (data) => console.log("CONNECTED", data);
-const disconnectedHandler: Web3AuthEventListener = (data) => console.log("DISCONNECTED", data);
+const connectedHandler: Web3AuthEventListener = (data) =>
+  console.log("CONNECTED", data);
+const disconnectedHandler: Web3AuthEventListener = (data) =>
+  console.log("DISCONNECTED", data);
 
 type AppBarProps = {
   isLoggedIn: boolean;
@@ -20,7 +28,13 @@ type AppBarProps = {
   userInfo?: SafeGetUserInfoResponse<Web3AuthModalPack>;
 };
 
-const Nav = ({ isLoggedIn, onLogin, onLogout, userInfo, signInInfo }: AppBarProps) => {
+const Nav = ({
+  isLoggedIn,
+  onLogin,
+  onLogout,
+  userInfo,
+  signInInfo,
+}: AppBarProps) => {
   return (
     <div className="px-4 py-8 text-lg flex justify-between">
       <div className="flex gap-2 items-center">
