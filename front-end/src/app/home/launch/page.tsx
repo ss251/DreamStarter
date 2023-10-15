@@ -36,7 +36,7 @@ const Launch = () => {
                 name="message"
                 rows="8"
                 cols="50"
-                className="bg-black border px-2 py-2"
+                className="bg-white/5 border border-white/40 px-4 py-4 rounded-sm backdrop-blur-lg text-sm"
               />
             </div>
             <div className="flex justify-center mt-5">

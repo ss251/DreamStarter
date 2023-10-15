@@ -25,3 +25,31 @@ body {
     )
     rgb(var(--background-start-rgb));
 }
+
+.glow::before {
+  content: "";
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  opacity: 0.1;
+  box-shadow: 200px 200px 100000px 80vh rgb(83, 83, 254);
+  transform: skew(20deg);
+
+  /* 600px 300px 100000px 400px theme("colors.primary.2"); */
+}
+
+.glow-right::before {
+  content: "";
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  opacity: 0.1;
+  box-shadow: -200px 200px 100000px 80vh hsl(198, 60%, 64%);
+  transform: skew(-20deg);
+}
