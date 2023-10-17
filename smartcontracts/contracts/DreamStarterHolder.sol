@@ -155,6 +155,8 @@ contract DreamStarterHolder is Context, ERC721A , ReentrancyGuard {
         flowRoles = IACCESSMASTER(contractAddr[1]);
     }
 
+
+    /// @dev for donation
     receive() external payable{
         emit Donation(msg.value,_msgSender(),gasleft());
     }   
@@ -164,16 +166,18 @@ contract DreamStarterHolder is Context, ERC721A , ReentrancyGuard {
         pause = true;
     }
 
+    /// @dev to pause the withdrawal by proposal Creator
     function _unpause() private {
         pause = false;
     }
-
+    /// @dev to Reject the Proposal completely by the NFT holders or by operator
      function _proposalRejection() private{
         isProposalRejected = true;
         _pause();
         
     }
 
+    /// @dev to transfer ERC20 Funds from one address to another
     function _transferFunds(address from,address to,uint256 amount) private  returns(bool){
         uint256 value =  token.balanceOf(_msgSender());
         require(value >= amount,"DreamStarterHolder: Not Enough Funds!");
@@ -185,25 +189,27 @@ contract DreamStarterHolder is Context, ERC721A , ReentrancyGuard {
 
       /** PUBLIC/EXTERNAL Function */
 
+     ///@dev the function will be called only by proposal Creator to change the funding start time ,
+    /// only when funding hasn't started
+    /// @param time - it is in UNIX time 
     function setFundingStartTime(
         uint256 time
     )external onlyProposalCreator onlyWhenProposalIsNotActive {
         fundingActiveTime = time;
      }
 
+    
+    ///@dev the function will be called only by proposal Creator to change the funding end time ,
+    /// only when funding hasn't started
+    /// @param time - it is in UNIX time
     function setFundingEndTime(
         uint256 time
     )external onlyProposalCreator onlyWhenProposalIsNotActive {
         fundingEndTime = time;
      }
 
-    function updateNFTPrice(
-        uint256 price
-    )external onlyProposalCreator onlyWhenProposalIsNotActive returns (uint256) {
-        salePrice = price;
-        return salePrice;
-     }
- 
+
+     /// @dev to submit the milestone as a ipfs hash
     function submitMileStoneInfo(string memory data)external onlyProposalCreator {
         mileStone.push(data);
         emit MileStoneSubmitted(data);
@@ -226,17 +232,22 @@ contract DreamStarterHolder is Context, ERC721A , ReentrancyGuard {
         }
     }
 
-
+      /// @dev user have to stake the 20% of the funding goal as security deposit , if the user doesn't stake 
+    /// the funding will never start and get Automatically rejected
     function stake() external onlyProposalCreator onlyWhenProposalIsNotActive{
         stakingAmount = (crowdFundingGoal * 20) / 100; 
         isCreatorStaked = _transferFunds(_msgSender(),address(this),stakingAmount);
         emit Staked(stakingAmount,isCreatorStaked);
     }
 
-
+    
+    /// @dev this function is for purchasing NFT and minting 
+    /// it will be start when fundingActiveTime is reached, it will end when fundingEndTime is reached
+    /// funding will be only work until crowfunding goal is reached , even before fundingEndTime
     function mintTicket(uint256 quantity)external returns (uint256 prevQuntity,uint256 currentQuantity) {
         require(block.timestamp >= fundingActiveTime || block.timestamp < fundingEndTime,"DreamStarterHolder: Funding cannot be done");
         require(fundsInReserve <= crowdFundingGoal,"DreamStarterHolder: Funding goal has been reached");
+        /// if the creator didn't staked the proposal will be rejected and users can claimback
         if(isCreatorStaked == false){
                 _proposalRejection();
                 revert DreamStarterHolder__ProposalRejected();        
@@ -250,8 +261,7 @@ contract DreamStarterHolder is Context, ERC721A , ReentrancyGuard {
         emit TicketMinted(prevQuntity,totalSupply() ,_msgSender());
         currentQuantity = totalSupply();
     }
-
-    /// @notice only Proposal  can withdraw the funds collected
+    /// @notice only Proposal Creator  can withdraw the funds collected
     function withdrawFunds(address wallet, uint256 amount) external onlyProposalCreator onlyWhenNotPaused nonReentrant{
         uint256 val = (crowdFundingGoal * 20) / 100;
         require(amount < val && fundsInReserve > 0,"DreamStarterHolder: Amount to be collected more than staked");
@@ -263,6 +273,30 @@ contract DreamStarterHolder is Context, ERC721A , ReentrancyGuard {
     }
 
     /// validate() -> To unpause  or Reject or  to set if proposal is all cleared or not
+
+      function validate(bool result,bool proposalRejectedStatus) external onlyOperator {
+        if(result == true){
+            if(fundsInReserve == 0){
+                isProposalCleared = true;
+            }
+            else{
+                _unpause();
+            }
+        }
+        else{
+            if(proposalRejectedStatus){
+                _proposalRejection();
+            }
+            else{
+                _pause();
+            }
+        }
+       
+    }
+    
+     /// @dev the users can claimback the amount they have deposited through purchasing 
+    /// if either funding Goal is not reached or  Proposal Is rejected
+    /// If the Profit is submitted by the Proposal Creator
     function claimback() external nonReentrant returns(uint256 ,bool) {
        uint nftBalance = balanceOf(_msgSender());
        uint256 amountToClaim ;
@@ -301,6 +335,10 @@ contract DreamStarterHolder is Context, ERC721A , ReentrancyGuard {
        }
     }   
 
+
+    /// @dev the proposal creator will submit there funds through this 
+    /// if proposal creator address have less than the yeild it should
+    /// it would be taken from staking amount
     function yieldSubmission() external onlyProposalCreator{
        if(isYieldReturned == true) revert DreamStarterHolder_NotEnoughFunds();
        uint256 yieldReturns = calculateYieldReturns();
@@ -323,6 +361,7 @@ contract DreamStarterHolder is Context, ERC721A , ReentrancyGuard {
 
     }
 
+        /// @dev if everything is cleared for the Proposal creator , the user can  unstake their funds 
     function unStake() external onlyProposalCreator  returns(uint256) {
         require(isProposalCleared == true && isCreatorStaked == true,"DreamStarterHolder: User cannot withdraw funds");
         require(stakingAmount > 0,"DreamStarterHolder: Not Enough Funds");
@@ -332,6 +371,7 @@ contract DreamStarterHolder is Context, ERC721A , ReentrancyGuard {
     }
 
     /** OPERATOR FUNCTIONS */
+      /// @dev if unsupported tokens or accidently someone send some tokens to the contract to withdraw that 
     function withdrawFundByOperator(
             address wallet,
             uint256 amount ,
@@ -340,6 +380,7 @@ contract DreamStarterHolder is Context, ERC721A , ReentrancyGuard {
            status = IERC20(tokenAddr).transferFrom(address(this),wallet,amount);
     }
 
+     /// @dev forcefull unpause or pause by operator if situations comes
     function unpauseOrPauseByOperator(bool state) external onlyOperator{
         if(state){
             _pause();
@@ -347,6 +388,7 @@ contract DreamStarterHolder is Context, ERC721A , ReentrancyGuard {
         else _unpause();
     }
 
+     /// @dev intiated rejection if the something fishy happens
     function intiateRejectionByOperator()external onlyOperator {
          _proposalRejection();
     }
