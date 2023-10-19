@@ -25,15 +25,19 @@ export interface DreamStarterCollabInterface extends utils.Interface {
     "baseURI()": FunctionFragment;
     "claimback(uint256)": FunctionFragment;
     "crowdFundingGoal()": FunctionFragment;
-    "fundCollected()": FunctionFragment;
     "fundingActiveTime()": FunctionFragment;
     "fundingEndTime()": FunctionFragment;
+    "fundsInReserve()": FunctionFragment;
     "getApproved(uint256)": FunctionFragment;
-    "intiateProposal()": FunctionFragment;
+    "getBlockNumber()": FunctionFragment;
+    "getTime()": FunctionFragment;
+    "intiateProposalFunding()": FunctionFragment;
     "intiateRejection()": FunctionFragment;
     "intiateRejectionByOperator()": FunctionFragment;
     "isApprovedForAll(address,address)": FunctionFragment;
     "isCreatorStaked()": FunctionFragment;
+    "isProposalCleared()": FunctionFragment;
+    "isProposalRejected()": FunctionFragment;
     "mileStone(uint256)": FunctionFragment;
     "mintTicket()": FunctionFragment;
     "name()": FunctionFragment;
@@ -48,7 +52,7 @@ export interface DreamStarterCollabInterface extends utils.Interface {
     "setApprovalForAll(address,bool)": FunctionFragment;
     "setFundingEndTime(uint256)": FunctionFragment;
     "setFundingStartTime(uint256)": FunctionFragment;
-    "stake()": FunctionFragment;
+    "stake(uint256)": FunctionFragment;
     "submitMileStoneInfo(string)": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
     "symbol()": FunctionFragment;
@@ -59,6 +63,7 @@ export interface DreamStarterCollabInterface extends utils.Interface {
     "transferFrom(address,address,uint256)": FunctionFragment;
     "unStake()": FunctionFragment;
     "unpauseOrPauseByOperator(bool)": FunctionFragment;
+    "validate(bool,bool)": FunctionFragment;
     "withdrawFundByOperator(address,uint256,address)": FunctionFragment;
     "withdrawFunds(address,uint256)": FunctionFragment;
     "yieldBasisPoint()": FunctionFragment;
@@ -79,10 +84,6 @@ export interface DreamStarterCollabInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "fundCollected",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "fundingActiveTime",
     values?: undefined
   ): string;
@@ -91,11 +92,20 @@ export interface DreamStarterCollabInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "fundsInReserve",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "getApproved",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "intiateProposal",
+    functionFragment: "getBlockNumber",
+    values?: undefined
+  ): string;
+  encodeFunctionData(functionFragment: "getTime", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "intiateProposalFunding",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -112,6 +122,14 @@ export interface DreamStarterCollabInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "isCreatorStaked",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isProposalCleared",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isProposalRejected",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -161,7 +179,7 @@ export interface DreamStarterCollabInterface extends utils.Interface {
     functionFragment: "setFundingStartTime",
     values: [BigNumberish]
   ): string;
-  encodeFunctionData(functionFragment: "stake", values?: undefined): string;
+  encodeFunctionData(functionFragment: "stake", values: [BigNumberish]): string;
   encodeFunctionData(
     functionFragment: "submitMileStoneInfo",
     values: [string]
@@ -197,6 +215,10 @@ export interface DreamStarterCollabInterface extends utils.Interface {
     values: [boolean]
   ): string;
   encodeFunctionData(
+    functionFragment: "validate",
+    values: [boolean, boolean]
+  ): string;
+  encodeFunctionData(
     functionFragment: "withdrawFundByOperator",
     values: [string, BigNumberish, string]
   ): string;
@@ -218,10 +240,6 @@ export interface DreamStarterCollabInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "fundCollected",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "fundingActiveTime",
     data: BytesLike
   ): Result;
@@ -230,11 +248,20 @@ export interface DreamStarterCollabInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "fundsInReserve",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getApproved",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "intiateProposal",
+    functionFragment: "getBlockNumber",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "getTime", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "intiateProposalFunding",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -251,6 +278,14 @@ export interface DreamStarterCollabInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "isCreatorStaked",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isProposalCleared",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isProposalRejected",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "mileStone", data: BytesLike): Result;
@@ -323,6 +358,7 @@ export interface DreamStarterCollabInterface extends utils.Interface {
     functionFragment: "unpauseOrPauseByOperator",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "validate", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "withdrawFundByOperator",
     data: BytesLike
@@ -342,6 +378,7 @@ export interface DreamStarterCollabInterface extends utils.Interface {
     "Donation(uint256,address,uint256)": EventFragment;
     "FundWithdrawnByHandler(uint8,uint256,address)": EventFragment;
     "FundsTransferred(address,address,uint256)": EventFragment;
+    "MileStoneSubmitted(string)": EventFragment;
     "RefundClaimed(uint256,address,uint256)": EventFragment;
     "Staked(uint256,bool)": EventFragment;
     "TicketMinted(uint256,address)": EventFragment;
@@ -354,6 +391,7 @@ export interface DreamStarterCollabInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "Donation"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FundWithdrawnByHandler"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FundsTransferred"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "MileStoneSubmitted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RefundClaimed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Staked"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TicketMinted"): EventFragment;
@@ -397,6 +435,11 @@ export type FundsTransferredEvent = TypedEvent<
 
 export type FundsTransferredEventFilter =
   TypedEventFilter<FundsTransferredEvent>;
+
+export type MileStoneSubmittedEvent = TypedEvent<[string], { data: string }>;
+
+export type MileStoneSubmittedEventFilter =
+  TypedEventFilter<MileStoneSubmittedEvent>;
 
 export type RefundClaimedEvent = TypedEvent<
   [BigNumber, string, BigNumber],
@@ -478,18 +521,22 @@ export interface DreamStarterCollab extends BaseContract {
 
     crowdFundingGoal(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    fundCollected(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     fundingActiveTime(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     fundingEndTime(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    fundsInReserve(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     getApproved(
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    intiateProposal(
+    getBlockNumber(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    getTime(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    intiateProposalFunding(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -508,6 +555,10 @@ export interface DreamStarterCollab extends BaseContract {
     ): Promise<[boolean]>;
 
     isCreatorStaked(overrides?: CallOverrides): Promise<[boolean]>;
+
+    isProposalCleared(overrides?: CallOverrides): Promise<[boolean]>;
+
+    isProposalRejected(overrides?: CallOverrides): Promise<[boolean]>;
 
     mileStone(arg0: BigNumberish, overrides?: CallOverrides): Promise<[string]>;
 
@@ -572,6 +623,7 @@ export interface DreamStarterCollab extends BaseContract {
     ): Promise<ContractTransaction>;
 
     stake(
+      amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -621,6 +673,12 @@ export interface DreamStarterCollab extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    validate(
+      result: boolean,
+      proposalRejectedStatus: boolean,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     withdrawFundByOperator(
       wallet: string,
       amount: BigNumberish,
@@ -654,18 +712,22 @@ export interface DreamStarterCollab extends BaseContract {
 
   crowdFundingGoal(overrides?: CallOverrides): Promise<BigNumber>;
 
-  fundCollected(overrides?: CallOverrides): Promise<BigNumber>;
-
   fundingActiveTime(overrides?: CallOverrides): Promise<BigNumber>;
 
   fundingEndTime(overrides?: CallOverrides): Promise<BigNumber>;
+
+  fundsInReserve(overrides?: CallOverrides): Promise<BigNumber>;
 
   getApproved(
     tokenId: BigNumberish,
     overrides?: CallOverrides
   ): Promise<string>;
 
-  intiateProposal(
+  getBlockNumber(overrides?: CallOverrides): Promise<BigNumber>;
+
+  getTime(overrides?: CallOverrides): Promise<BigNumber>;
+
+  intiateProposalFunding(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -684,6 +746,10 @@ export interface DreamStarterCollab extends BaseContract {
   ): Promise<boolean>;
 
   isCreatorStaked(overrides?: CallOverrides): Promise<boolean>;
+
+  isProposalCleared(overrides?: CallOverrides): Promise<boolean>;
+
+  isProposalRejected(overrides?: CallOverrides): Promise<boolean>;
 
   mileStone(arg0: BigNumberish, overrides?: CallOverrides): Promise<string>;
 
@@ -742,6 +808,7 @@ export interface DreamStarterCollab extends BaseContract {
   ): Promise<ContractTransaction>;
 
   stake(
+    amount: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -788,6 +855,12 @@ export interface DreamStarterCollab extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  validate(
+    result: boolean,
+    proposalRejectedStatus: boolean,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   withdrawFundByOperator(
     wallet: string,
     amount: BigNumberish,
@@ -821,18 +894,22 @@ export interface DreamStarterCollab extends BaseContract {
 
     crowdFundingGoal(overrides?: CallOverrides): Promise<BigNumber>;
 
-    fundCollected(overrides?: CallOverrides): Promise<BigNumber>;
-
     fundingActiveTime(overrides?: CallOverrides): Promise<BigNumber>;
 
     fundingEndTime(overrides?: CallOverrides): Promise<BigNumber>;
+
+    fundsInReserve(overrides?: CallOverrides): Promise<BigNumber>;
 
     getApproved(
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<string>;
 
-    intiateProposal(overrides?: CallOverrides): Promise<void>;
+    getBlockNumber(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getTime(overrides?: CallOverrides): Promise<BigNumber>;
+
+    intiateProposalFunding(overrides?: CallOverrides): Promise<void>;
 
     intiateRejection(overrides?: CallOverrides): Promise<void>;
 
@@ -845,6 +922,10 @@ export interface DreamStarterCollab extends BaseContract {
     ): Promise<boolean>;
 
     isCreatorStaked(overrides?: CallOverrides): Promise<boolean>;
+
+    isProposalCleared(overrides?: CallOverrides): Promise<boolean>;
+
+    isProposalRejected(overrides?: CallOverrides): Promise<boolean>;
 
     mileStone(arg0: BigNumberish, overrides?: CallOverrides): Promise<string>;
 
@@ -903,7 +984,7 @@ export interface DreamStarterCollab extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    stake(overrides?: CallOverrides): Promise<void>;
+    stake(amount: BigNumberish, overrides?: CallOverrides): Promise<void>;
 
     submitMileStoneInfo(data: string, overrides?: CallOverrides): Promise<void>;
 
@@ -940,6 +1021,12 @@ export interface DreamStarterCollab extends BaseContract {
 
     unpauseOrPauseByOperator(
       state: boolean,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    validate(
+      result: boolean,
+      proposalRejectedStatus: boolean,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1011,6 +1098,9 @@ export interface DreamStarterCollab extends BaseContract {
       amount?: BigNumberish | null
     ): FundsTransferredEventFilter;
 
+    "MileStoneSubmitted(string)"(data?: null): MileStoneSubmittedEventFilter;
+    MileStoneSubmitted(data?: null): MileStoneSubmittedEventFilter;
+
     "RefundClaimed(uint256,address,uint256)"(
       tokenId?: BigNumberish | null,
       owner?: string | null,
@@ -1073,18 +1163,22 @@ export interface DreamStarterCollab extends BaseContract {
 
     crowdFundingGoal(overrides?: CallOverrides): Promise<BigNumber>;
 
-    fundCollected(overrides?: CallOverrides): Promise<BigNumber>;
-
     fundingActiveTime(overrides?: CallOverrides): Promise<BigNumber>;
 
     fundingEndTime(overrides?: CallOverrides): Promise<BigNumber>;
+
+    fundsInReserve(overrides?: CallOverrides): Promise<BigNumber>;
 
     getApproved(
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    intiateProposal(
+    getBlockNumber(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getTime(overrides?: CallOverrides): Promise<BigNumber>;
+
+    intiateProposalFunding(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1103,6 +1197,10 @@ export interface DreamStarterCollab extends BaseContract {
     ): Promise<BigNumber>;
 
     isCreatorStaked(overrides?: CallOverrides): Promise<BigNumber>;
+
+    isProposalCleared(overrides?: CallOverrides): Promise<BigNumber>;
+
+    isProposalRejected(overrides?: CallOverrides): Promise<BigNumber>;
 
     mileStone(
       arg0: BigNumberish,
@@ -1170,6 +1268,7 @@ export interface DreamStarterCollab extends BaseContract {
     ): Promise<BigNumber>;
 
     stake(
+      amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1219,6 +1318,12 @@ export interface DreamStarterCollab extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    validate(
+      result: boolean,
+      proposalRejectedStatus: boolean,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     withdrawFundByOperator(
       wallet: string,
       amount: BigNumberish,
@@ -1256,18 +1361,22 @@ export interface DreamStarterCollab extends BaseContract {
 
     crowdFundingGoal(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    fundCollected(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     fundingActiveTime(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     fundingEndTime(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    fundsInReserve(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getApproved(
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    intiateProposal(
+    getBlockNumber(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    getTime(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    intiateProposalFunding(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1286,6 +1395,12 @@ export interface DreamStarterCollab extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     isCreatorStaked(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    isProposalCleared(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    isProposalRejected(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     mileStone(
       arg0: BigNumberish,
@@ -1355,6 +1470,7 @@ export interface DreamStarterCollab extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     stake(
+      amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1401,6 +1517,12 @@ export interface DreamStarterCollab extends BaseContract {
 
     unpauseOrPauseByOperator(
       state: boolean,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    validate(
+      result: boolean,
+      proposalRejectedStatus: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

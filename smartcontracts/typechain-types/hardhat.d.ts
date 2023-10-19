@@ -13,25 +13,29 @@ import * as Contracts from ".";
 declare module "hardhat/types/runtime" {
   interface HardhatEthersHelpers extends HardhatEthersHelpersBase {
     getContractFactory(
-      name: "ERC1155",
+      name: "AccessControl",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ERC1155__factory>;
+    ): Promise<Contracts.AccessControl__factory>;
     getContractFactory(
-      name: "ERC1155Supply",
+      name: "AccessControlEnumerable",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ERC1155Supply__factory>;
+    ): Promise<Contracts.AccessControlEnumerable__factory>;
     getContractFactory(
-      name: "IERC1155MetadataURI",
+      name: "IAccessControl",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IERC1155MetadataURI__factory>;
+    ): Promise<Contracts.IAccessControl__factory>;
     getContractFactory(
-      name: "IERC1155",
+      name: "IAccessControlEnumerable",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IERC1155__factory>;
+    ): Promise<Contracts.IAccessControlEnumerable__factory>;
     getContractFactory(
-      name: "IERC1155Receiver",
+      name: "ERC20",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IERC1155Receiver__factory>;
+    ): Promise<Contracts.ERC20__factory>;
+    getContractFactory(
+      name: "IERC20Metadata",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IERC20Metadata__factory>;
     getContractFactory(
       name: "IERC20",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -101,35 +105,44 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.DreamStarterHolder__factory>;
     getContractFactory(
-      name: "DreamStarterSFT",
+      name: "AccessMaster",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.DreamStarterSFT__factory>;
+    ): Promise<Contracts.AccessMaster__factory>;
+    getContractFactory(
+      name: "MyToken",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.MyToken__factory>;
 
     getContractAt(
-      name: "ERC1155",
+      name: "AccessControl",
       address: string,
       signer?: ethers.Signer
-    ): Promise<Contracts.ERC1155>;
+    ): Promise<Contracts.AccessControl>;
     getContractAt(
-      name: "ERC1155Supply",
+      name: "AccessControlEnumerable",
       address: string,
       signer?: ethers.Signer
-    ): Promise<Contracts.ERC1155Supply>;
+    ): Promise<Contracts.AccessControlEnumerable>;
     getContractAt(
-      name: "IERC1155MetadataURI",
+      name: "IAccessControl",
       address: string,
       signer?: ethers.Signer
-    ): Promise<Contracts.IERC1155MetadataURI>;
+    ): Promise<Contracts.IAccessControl>;
     getContractAt(
-      name: "IERC1155",
+      name: "IAccessControlEnumerable",
       address: string,
       signer?: ethers.Signer
-    ): Promise<Contracts.IERC1155>;
+    ): Promise<Contracts.IAccessControlEnumerable>;
     getContractAt(
-      name: "IERC1155Receiver",
+      name: "ERC20",
       address: string,
       signer?: ethers.Signer
-    ): Promise<Contracts.IERC1155Receiver>;
+    ): Promise<Contracts.ERC20>;
+    getContractAt(
+      name: "IERC20Metadata",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IERC20Metadata>;
     getContractAt(
       name: "IERC20",
       address: string,
@@ -216,10 +229,15 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.DreamStarterHolder>;
     getContractAt(
-      name: "DreamStarterSFT",
+      name: "AccessMaster",
       address: string,
       signer?: ethers.Signer
-    ): Promise<Contracts.DreamStarterSFT>;
+    ): Promise<Contracts.AccessMaster>;
+    getContractAt(
+      name: "MyToken",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.MyToken>;
 
     // default types
     getContractFactory(

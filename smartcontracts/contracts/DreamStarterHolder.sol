@@ -23,8 +23,8 @@ contract DreamStarterHolder is Context, ERC721A , ReentrancyGuard {
     bool public pause ;
     bool public isCreatorStaked;
     bool public isYieldReturned;
-    bool private isProposalRejected;
-    bool private isProposalCleared;
+    bool public isProposalRejected;
+    bool public isProposalCleared;
 
     address public immutable proposalCreator;
 
@@ -145,8 +145,8 @@ contract DreamStarterHolder is Context, ERC721A , ReentrancyGuard {
         proposalCreator = _proposalCreator;
         require(proposalDetails.length == 4,"DreamStarterHolder: Invalid Proposal Input");
         crowdFundingGoal = proposalDetails[0];
-        fundingActiveTime = proposalDetails[1];
-        fundingEndTime = proposalDetails[2];
+        fundingActiveTime = block.timestamp + proposalDetails[1];
+        fundingEndTime = block.timestamp + proposalDetails[2];
         salePrice = proposalDetails[3];
         yieldBasisPoints = yieldRate;
         baseURI = _baseURI;
@@ -195,7 +195,7 @@ contract DreamStarterHolder is Context, ERC721A , ReentrancyGuard {
     function setFundingStartTime(
         uint256 time
     )external onlyProposalCreator onlyWhenProposalIsNotActive {
-        fundingActiveTime = time;
+        fundingActiveTime = block.timestamp + time;
      }
 
     
@@ -205,7 +205,7 @@ contract DreamStarterHolder is Context, ERC721A , ReentrancyGuard {
     function setFundingEndTime(
         uint256 time
     )external onlyProposalCreator onlyWhenProposalIsNotActive {
-        fundingEndTime = time;
+        fundingEndTime = block.timestamp + time;
      }
 
 

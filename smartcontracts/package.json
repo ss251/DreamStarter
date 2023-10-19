@@ -9,7 +9,8 @@
     "test": "hardhat test",
     "coverage": "hardhat coverage",
     "deploy": "hardhat run scripts/deploy.ts --network $NETWORK",
-    "compile": "hardhat compile"
+    "compile": "hardhat compile",
+    "launch":"hardhat run scripts/launch/launch.js"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.4",

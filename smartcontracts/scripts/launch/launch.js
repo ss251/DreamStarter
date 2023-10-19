@@ -73,6 +73,23 @@ async function DreamStarterCollabDeploy() {
     }
 }
 
+async function Token() {
+    const TokenFactory = await hre.ethers.getContractFactory("MyToken")
+    const token = await TokenFactory.deploy()
+
+    await token.deployed()
+
+    console.log("Token Deployed to:", token.address)
+    contractAddress = token.address
+    blockNumber = token.provider._maxInternalBlockNumber
+
+    /// VERIFY
+    if (hre.network.name != "hardhat") {
+        await token.deployTransaction.wait(6)
+        await verify(token.address, [])
+    }
+}
+
 async function main() {
     //DreamStarterHolder
     if (jsonContent.contractName == "DreamStarterHolder") {
@@ -81,6 +98,11 @@ async function main() {
     /// DreamStarterCollab CONTRACT
     if (jsonContent.contractName == "DreamStarterCollab") {
         await DreamStarterCollabDeploy()
+    }
+
+    /// ERC20 
+    if (jsonContent.contractName == "Token") {
+        await Token()
     }
 
     let chainId
