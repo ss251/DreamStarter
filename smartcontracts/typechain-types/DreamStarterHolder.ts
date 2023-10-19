@@ -27,15 +27,17 @@ export interface DreamStarterHolderInterface extends utils.Interface {
     "calculateYieldReturns()": FunctionFragment;
     "claimback()": FunctionFragment;
     "crowdFundingGoal()": FunctionFragment;
-    "fundCollected()": FunctionFragment;
     "fundingActiveTime()": FunctionFragment;
     "fundingEndTime()": FunctionFragment;
+    "fundsInReserve()": FunctionFragment;
     "getApproved(uint256)": FunctionFragment;
-    "intiateProposal()": FunctionFragment;
+    "intiateProposalFunding()": FunctionFragment;
     "intiateRejection()": FunctionFragment;
     "intiateRejectionByOperator()": FunctionFragment;
     "isApprovedForAll(address,address)": FunctionFragment;
     "isCreatorStaked()": FunctionFragment;
+    "isProposalCleared()": FunctionFragment;
+    "isProposalRejected()": FunctionFragment;
     "isYieldReturned()": FunctionFragment;
     "mileStone(uint256)": FunctionFragment;
     "mintTicket(uint256)": FunctionFragment;
@@ -61,7 +63,7 @@ export interface DreamStarterHolderInterface extends utils.Interface {
     "transferFrom(address,address,uint256)": FunctionFragment;
     "unStake()": FunctionFragment;
     "unpauseOrPauseByOperator(bool)": FunctionFragment;
-    "updateNFTPrice(uint256)": FunctionFragment;
+    "validate(bool,bool)": FunctionFragment;
     "withdrawFundByOperator(address,uint256,address)": FunctionFragment;
     "withdrawFunds(address,uint256)": FunctionFragment;
     "yieldBasisPoints()": FunctionFragment;
@@ -84,10 +86,6 @@ export interface DreamStarterHolderInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "fundCollected",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "fundingActiveTime",
     values?: undefined
   ): string;
@@ -96,11 +94,15 @@ export interface DreamStarterHolderInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "fundsInReserve",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "getApproved",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "intiateProposal",
+    functionFragment: "intiateProposalFunding",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -117,6 +119,14 @@ export interface DreamStarterHolderInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "isCreatorStaked",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isProposalCleared",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isProposalRejected",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -202,8 +212,8 @@ export interface DreamStarterHolderInterface extends utils.Interface {
     values: [boolean]
   ): string;
   encodeFunctionData(
-    functionFragment: "updateNFTPrice",
-    values: [BigNumberish]
+    functionFragment: "validate",
+    values: [boolean, boolean]
   ): string;
   encodeFunctionData(
     functionFragment: "withdrawFundByOperator",
@@ -235,10 +245,6 @@ export interface DreamStarterHolderInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "fundCollected",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "fundingActiveTime",
     data: BytesLike
   ): Result;
@@ -247,11 +253,15 @@ export interface DreamStarterHolderInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "fundsInReserve",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getApproved",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "intiateProposal",
+    functionFragment: "intiateProposalFunding",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -268,6 +278,14 @@ export interface DreamStarterHolderInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "isCreatorStaked",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isProposalCleared",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isProposalRejected",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -340,10 +358,7 @@ export interface DreamStarterHolderInterface extends utils.Interface {
     functionFragment: "unpauseOrPauseByOperator",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "updateNFTPrice",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "validate", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "withdrawFundByOperator",
     data: BytesLike
@@ -368,6 +383,7 @@ export interface DreamStarterHolderInterface extends utils.Interface {
     "Donation(uint256,address,uint256)": EventFragment;
     "FundWithdrawnByHandler(uint8,uint256,address)": EventFragment;
     "FundsTransferred(address,address,uint256)": EventFragment;
+    "MileStoneSubmitted(string)": EventFragment;
     "RefundClaimed(uint256,address,uint256)": EventFragment;
     "Staked(uint256,bool)": EventFragment;
     "TicketMinted(uint256,uint256,address)": EventFragment;
@@ -381,6 +397,7 @@ export interface DreamStarterHolderInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "Donation"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FundWithdrawnByHandler"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FundsTransferred"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "MileStoneSubmitted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RefundClaimed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Staked"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TicketMinted"): EventFragment;
@@ -432,6 +449,11 @@ export type FundsTransferredEvent = TypedEvent<
 
 export type FundsTransferredEventFilter =
   TypedEventFilter<FundsTransferredEvent>;
+
+export type MileStoneSubmittedEvent = TypedEvent<[string], { data: string }>;
+
+export type MileStoneSubmittedEventFilter =
+  TypedEventFilter<MileStoneSubmittedEvent>;
 
 export type RefundClaimedEvent = TypedEvent<
   [BigNumber, string, BigNumber],
@@ -516,18 +538,18 @@ export interface DreamStarterHolder extends BaseContract {
 
     crowdFundingGoal(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    fundCollected(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     fundingActiveTime(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     fundingEndTime(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    fundsInReserve(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     getApproved(
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    intiateProposal(
+    intiateProposalFunding(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -546,6 +568,10 @@ export interface DreamStarterHolder extends BaseContract {
     ): Promise<[boolean]>;
 
     isCreatorStaked(overrides?: CallOverrides): Promise<[boolean]>;
+
+    isProposalCleared(overrides?: CallOverrides): Promise<[boolean]>;
+
+    isProposalRejected(overrides?: CallOverrides): Promise<[boolean]>;
 
     isYieldReturned(overrides?: CallOverrides): Promise<[boolean]>;
 
@@ -650,8 +676,9 @@ export interface DreamStarterHolder extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    updateNFTPrice(
-      price: BigNumberish,
+    validate(
+      result: boolean,
+      proposalRejectedStatus: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -693,18 +720,18 @@ export interface DreamStarterHolder extends BaseContract {
 
   crowdFundingGoal(overrides?: CallOverrides): Promise<BigNumber>;
 
-  fundCollected(overrides?: CallOverrides): Promise<BigNumber>;
-
   fundingActiveTime(overrides?: CallOverrides): Promise<BigNumber>;
 
   fundingEndTime(overrides?: CallOverrides): Promise<BigNumber>;
+
+  fundsInReserve(overrides?: CallOverrides): Promise<BigNumber>;
 
   getApproved(
     tokenId: BigNumberish,
     overrides?: CallOverrides
   ): Promise<string>;
 
-  intiateProposal(
+  intiateProposalFunding(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -723,6 +750,10 @@ export interface DreamStarterHolder extends BaseContract {
   ): Promise<boolean>;
 
   isCreatorStaked(overrides?: CallOverrides): Promise<boolean>;
+
+  isProposalCleared(overrides?: CallOverrides): Promise<boolean>;
+
+  isProposalRejected(overrides?: CallOverrides): Promise<boolean>;
 
   isYieldReturned(overrides?: CallOverrides): Promise<boolean>;
 
@@ -821,8 +852,9 @@ export interface DreamStarterHolder extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  updateNFTPrice(
-    price: BigNumberish,
+  validate(
+    result: boolean,
+    proposalRejectedStatus: boolean,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -862,18 +894,18 @@ export interface DreamStarterHolder extends BaseContract {
 
     crowdFundingGoal(overrides?: CallOverrides): Promise<BigNumber>;
 
-    fundCollected(overrides?: CallOverrides): Promise<BigNumber>;
-
     fundingActiveTime(overrides?: CallOverrides): Promise<BigNumber>;
 
     fundingEndTime(overrides?: CallOverrides): Promise<BigNumber>;
+
+    fundsInReserve(overrides?: CallOverrides): Promise<BigNumber>;
 
     getApproved(
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<string>;
 
-    intiateProposal(overrides?: CallOverrides): Promise<void>;
+    intiateProposalFunding(overrides?: CallOverrides): Promise<void>;
 
     intiateRejection(overrides?: CallOverrides): Promise<void>;
 
@@ -886,6 +918,10 @@ export interface DreamStarterHolder extends BaseContract {
     ): Promise<boolean>;
 
     isCreatorStaked(overrides?: CallOverrides): Promise<boolean>;
+
+    isProposalCleared(overrides?: CallOverrides): Promise<boolean>;
+
+    isProposalRejected(overrides?: CallOverrides): Promise<boolean>;
 
     isYieldReturned(overrides?: CallOverrides): Promise<boolean>;
 
@@ -982,10 +1018,11 @@ export interface DreamStarterHolder extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    updateNFTPrice(
-      price: BigNumberish,
+    validate(
+      result: boolean,
+      proposalRejectedStatus: boolean,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    ): Promise<void>;
 
     withdrawFundByOperator(
       wallet: string,
@@ -1070,6 +1107,9 @@ export interface DreamStarterHolder extends BaseContract {
       amount?: BigNumberish | null
     ): FundsTransferredEventFilter;
 
+    "MileStoneSubmitted(string)"(data?: null): MileStoneSubmittedEventFilter;
+    MileStoneSubmitted(data?: null): MileStoneSubmittedEventFilter;
+
     "RefundClaimed(uint256,address,uint256)"(
       quantity?: BigNumberish | null,
       owner?: string | null,
@@ -1135,18 +1175,18 @@ export interface DreamStarterHolder extends BaseContract {
 
     crowdFundingGoal(overrides?: CallOverrides): Promise<BigNumber>;
 
-    fundCollected(overrides?: CallOverrides): Promise<BigNumber>;
-
     fundingActiveTime(overrides?: CallOverrides): Promise<BigNumber>;
 
     fundingEndTime(overrides?: CallOverrides): Promise<BigNumber>;
+
+    fundsInReserve(overrides?: CallOverrides): Promise<BigNumber>;
 
     getApproved(
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    intiateProposal(
+    intiateProposalFunding(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1165,6 +1205,10 @@ export interface DreamStarterHolder extends BaseContract {
     ): Promise<BigNumber>;
 
     isCreatorStaked(overrides?: CallOverrides): Promise<BigNumber>;
+
+    isProposalCleared(overrides?: CallOverrides): Promise<BigNumber>;
+
+    isProposalRejected(overrides?: CallOverrides): Promise<BigNumber>;
 
     isYieldReturned(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1272,8 +1316,9 @@ export interface DreamStarterHolder extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    updateNFTPrice(
-      price: BigNumberish,
+    validate(
+      result: boolean,
+      proposalRejectedStatus: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1321,18 +1366,18 @@ export interface DreamStarterHolder extends BaseContract {
 
     crowdFundingGoal(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    fundCollected(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     fundingActiveTime(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     fundingEndTime(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    fundsInReserve(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getApproved(
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    intiateProposal(
+    intiateProposalFunding(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1351,6 +1396,12 @@ export interface DreamStarterHolder extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     isCreatorStaked(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    isProposalCleared(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    isProposalRejected(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     isYieldReturned(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1463,8 +1514,9 @@ export interface DreamStarterHolder extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    updateNFTPrice(
-      price: BigNumberish,
+    validate(
+      result: boolean,
+      proposalRejectedStatus: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

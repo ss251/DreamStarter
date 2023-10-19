@@ -10,150 +10,48 @@ The JSON file should have the following format:
 
 **Caution** : Only the parameters should be altered for deployment, not the contract's name in json examples.
 
-`AccessMaster Contract`
+`Token Contract`
 
 ```shell
 {
-    "contractName" : "AccessMaster",
-    "constructorParams":{
-        "param1" : "0x83AD8ddAdb013fbA80DE0d802FD4fB1a949AD79f" // storefrontAdmin wallet
-    }
+    "contractName" : "Token",
+    "constructorParams":{}
 }
 ```
 
-`TradeHub Contract`
+`DreamStarterHolder Contract`
 
 ```shell
 {
-    "contractName" : "TradeHub",
+    "contractName" : "DreamStarterCollab",
     "constructorParams":{
-        "param1":   30, // PlaformFee
-        "param2" : "NFT BAZAAR", // TradeHub Name
-        "param3" : "0xEFf4209584cc2cE0409a5FA06175002537b055DC" // AccessMaster Address
-    }
+            "param1" :"0x83AD8ddAdb013fbA80DE0d802FD4fB1a949AD79f",
+            "param2" :"Soumalya Music Fest",
+            "param3" : "SMF",
+            "param4" : ["10000000000000000000",3600,86400,"1000000000000000000"],// crowfundingGoal,Starttime in secs,// endTime in secs, price per nft
+            "param5" : 4 // denotes percentage
+            "param6" : "www.xyz.com",
+            "param7" : ["0x8563F7BD1fa85cB75EFB8e710D3971dC3e3C5C8b","0xb4f7ba8C7d818a208Cd89B127a126DD2aa45aDae"] // Stablecoin address , Accessmaster Address
+        }
 }
 ```
 
-`FusionSeries Contract`
+`DreamStarterCollab Contract`
 
 ```shell
 {
-    "contractName" : "FusionSeries",
+    "contractName" : "DreamStarterCollab",
     "constructorParams":{
-        "param1":  "www.xyz.com", //BaseURI
-        "param2" : "NFT MELA", // Name
-        "param3" : "NFM", // Symbol
-        "param2" : "0x1B8683e1885B3ee93524cD58BC10Cf3Ed6af4298",//TradeHub Address
-        "param3" : "0xEFf4209584cc2cE0409a5FA06175002537b055DC"//AccessMaster Address
-    }
-}
-```
+            "param1" :"0x83AD8ddAdb013fbA80DE0d802FD4fB1a949AD79f",
+            "param2" :"Soumalya Music Fest",
+            "param3" : "SMF",
+            "param4" : ["10000000000000000000",3600,86400,"1000000000000000000"],// crowfundingGoal,Starttime in secs,// endTime in secs, price per nft
+            "param5" : "www.xyz.com",
+            "param6" : ["0x8563F7BD1fa85cB75EFB8e710D3971dC3e3C5C8b","0xb4f7ba8C7d818a208Cd89B127a126DD2aa45aDae"] // Stablecoin address , Accessmaster Address
+        }
 
-`SignatureSeries Contract`
-
-```shell
-{
-    "contractName" : "SignatureSeries",
-    "constructorParams":{
-        "param1" : "NFT Baazar", // Name
-        "param2" : "NFB",// Symbol
-        "param3" : "0x1B8683e1885B3ee93524cD58BC10Cf3Ed6af4298", // TradeHub Address
-        "param4" : "0xEFf4209584cc2cE0409a5FA06175002537b055DC"// AccessMaster Address
-    }
 }
 
-```
-
-`InstaGen Contract`
-
-```shell
-{
-    "contractName" : "InstaGen",
-    "constructorParams":{
-        "param1": "NFT MELA",//Name
-        "param2" : "NM",//Symbol
-        "param3" : "0x1B8683e1885B3ee93524cD58BC10Cf3Ed6af4298", // TradeHub Address
-        "param4" : "0xEFf4209584cc2cE0409a5FA06175002537b055DC" , // AccessMaster Address
-        "param5" :"1000000000000000000", // SalePrice
-        "param6" : "100000000000000000",// PreSalePrice
-        "param7" : 0,//CountDown
-        "param8" : 2000,// MaxSupply
-        "param9" : 300,//Royalty Percentage
-        "param10": "www.abc.com"// BaseUri
-    }
-}
-```
-
-`EternumPass Contract`
-
-```shell
-{
-    "contractName" : "EternumPass",
-    "constructorParams":{
-        "param1" : "NFT_MELA",//Name
-        "param2" : "NFM",//Symbol
-        "param3" : "www.xyz.com",//BaseUri
-        "param4" : "100000000000000000",//PublicSalePrice
-        "param5" : "30",//PlatformFee
-        "param6" : "10000000000000",//Subscription Price
-        "param7" : "500",//Royalty
-        "param8" : "0xEFf4209584cc2cE0409a5FA06175002537b055DC",//AccessMaster Address
-        "param9" : "0x1B8683e1885B3ee93524cD58BC10Cf3Ed6af4298" // TradeHub Address
-    }
-}
-```
-
-`EternalSoul Contract`
-
-```shell
-{
-    "contractName" : "EternalSoul",
-    "constructorParams":{
-        "param1" : "Soul Wizard",//Name
-        "param2" : "SW",//Symbol
-        "param3" : "www.xyz.com", //BaseUri
-        "param4" : "0xb4f7ba8C7d818a208Cd89B127a126DD2aa45aDae"// AccessMaster Address
-    }
-}
-```
-
-`FlowSubscription Contract`
-
-```shell
-{
-    "contractName" : "FlowSubscription",
-    "constructorParams":{
-        "param1" : "MYRIADFLOW",
-        "param2" : "MFW",
-        "param3" : "www.xyz.com",
-        "param4" : "1000000000000000000",
-        "param5" : "1000000000000000",
-        "param6" : 300,
-        "param7" : "0xb4f7ba8C7d818a208Cd89B127a126DD2aa45aDae"
-    }
-}
-```
-
-`CyberMaven Contract`
-
-```shell
-{
-    "contractName" : "CyberMaven",
-    "constructorParams":{
-
-    }
-}
-```
-
-`CyberMaven Registry`
-
-```shell
-{
-    "contractName" : "CyberMavenRegistry",
-    "constructorParams":{
-        "param1" : "0x5FbDB2315678afecb367f032d93F642f64180aa3"
-    }
-}
 ```
 
 The `contracts` array contains objects representing each contract. Each contract object has two properties:

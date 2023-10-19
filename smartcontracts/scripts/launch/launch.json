@@ -1,6 +1,12 @@
 {
-    "contractName" : "AccessMaster",
+    "contractName" : "DreamStarterHolder",
     "constructorParams":{
-        "param1" : "0xD96429FC46F483E2Afa048edbF51ECe728FfE6F5"
+        "param1" :"0x83AD8ddAdb013fbA80DE0d802FD4fB1a949AD79f",
+        "param2" :"Soumalya Music Fest",
+        "param3" : "SMF",
+        "param4" : ["10000000000000000000",3600,86400,"1000000000000000000"],
+        "param5" : 4,
+        "param6" : "www.xyz.com",
+        "param7" : ["0x8563F7BD1fa85cB75EFB8e710D3971dC3e3C5C8b","0xb4f7ba8C7d818a208Cd89B127a126DD2aa45aDae"]
     }
 }
