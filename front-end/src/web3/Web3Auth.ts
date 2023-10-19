@@ -1,28 +1,35 @@
 import { Web3AuthModalPack, Web3AuthConfig } from "@safe-global/auth-kit";
 import { Web3AuthOptions } from "@web3auth/modal";
+import { Web3Auth } from "@web3auth/modal";
 import { OpenloginAdapter } from "@web3auth/openlogin-adapter";
-import { ADAPTER_EVENTS, CHAIN_NAMESPACES, SafeEventEmitterProvider, UserInfo, WALLET_ADAPTERS } from "@web3auth/base";
+import {
+  ADAPTER_EVENTS,
+  CHAIN_NAMESPACES,
+  SafeEventEmitterProvider,
+  UserInfo,
+  WALLET_ADAPTERS,
+} from "@web3auth/base";
+
 // https://web3auth.io/docs/sdk/pnp/web/modal/initialize#arguments
-export const options: Web3AuthOptions = {
-  clientId: "YOUR_WEB3_AUTH_CLIENT_ID", // https://dashboard.web3auth.io/
+
+//Initialize within your constructor
+export const options = new Web3Auth({
+  clientId:
+    "BCzN3eX5wyI7gd1g4EQt7n4IEb43J-jBXdFa2rFtNnL-zSHoYeSTFPQR7RcIUEErw9INhSU84Eiih_5urgr2PeA",
   web3AuthNetwork: "testnet",
   chainConfig: {
-    chainNamespace: CHAIN_NAMESPACES.EIP155,
-    chainId: "0x5",
-    // https://chainlist.org/
-    rpcTarget: "https://rpc.ankr.com/eth_goerli",
+    chainNamespace: "eip155",
+    chainId: "0x1",
   },
-  uiConfig: {
-    theme: "dark",
-    loginMethodsOrder: ["google", "facebook"],
-  },
-};
+});
+
+// await web3auth.initModal();
 
 // https://web3auth.io/docs/sdk/pnp/web/modal/initialize#configuring-adapters
 export const modalConfig = {
   [WALLET_ADAPTERS.TORUS_EVM]: {
     label: "torus",
-    showOnModal: false,
+    showOnModal: true,
   },
   [WALLET_ADAPTERS.METAMASK]: {
     label: "metamask",
@@ -36,6 +43,7 @@ export const openloginAdapter = new OpenloginAdapter({
   loginSettings: {
     mfaLevel: "mandatory",
   },
+
   adapterSettings: {
     uxMode: "popup",
     whiteLabel: {
