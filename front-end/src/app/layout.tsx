@@ -2,12 +2,12 @@
 
 import Nav from "@/components/LandingPage/Nav";
 import "./globals.css";
-import { Inter, Taviraj } from "next/font/google";
+import { Inter, Taviraj, Montserrat } from "next/font/google";
 
 import React, { FC, useState, useEffect } from "react";
 import { GiTakeMyMoney } from "react-icons/gi";
 import Button from "@/components/common/Button";
-import { options, modalConfig, openloginAdapter, web3AuthConfig } from "@/web3";
+import { modalConfig, openloginAdapter, web3AuthConfig } from "@/web3";
 import { Web3AuthModalPack, Web3AuthConfig } from "@safe-global/auth-kit";
 import { Web3AuthOptions } from "@web3auth/modal";
 import { OpenloginAdapter } from "@web3auth/openlogin-adapter";
@@ -48,12 +48,22 @@ export default function RootLayout({
       });
 
       await web3AuthModalPack.init({
-        options,
+        options: {
+          clientId:
+            "BOoluL4O3QhjHfKjsZmLZlrRvPDdtvcfSl3kq3hXBwbZI_nMbvqHm3tsQGxW4SJsrCtZc2WrGwa3XBQP4j6yJvY",
+          web3AuthNetwork: "testnet",
+          chainConfig: {
+            chainNamespace: "eip155",
+            chainId: "0x1",
+            rpcTarget: "https://rpc.ankr.com/eth_goerli",
+          },
+        },
         adapters: [openloginAdapter],
         modalConfig,
       });
-      web3AuthModalPack.subscribe(ADAPTER_EVENTS.CONNECTED, connectedHandler);
+      console.log("water");
 
+      web3AuthModalPack.subscribe(ADAPTER_EVENTS.CONNECTED, connectedHandler);
       web3AuthModalPack.subscribe(
         ADAPTER_EVENTS.DISCONNECTED,
         disconnectedHandler
@@ -103,7 +113,7 @@ export default function RootLayout({
 
   return (
     <html lang="en">
-      <body className={taviraj.className}>
+      <body className={montserrat.className}>
         <div className="absolute glow left-0 top-10"></div>
         <div className="absolute glow-right right-0 top-10"></div>
         <div>
@@ -122,7 +132,7 @@ export default function RootLayout({
   );
 }
 
-const taviraj = Taviraj({
+const montserrat = Montserrat({
   weight: ["200", "400", "600", "700", "900"],
   style: ["normal", "italic"],
   subsets: ["latin"],

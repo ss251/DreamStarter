@@ -1,52 +1,49 @@
 "use client";
-
-import Button from "@/components/common/Button";
-import React from "react";
-import { Formik, Form, Field, ErrorMessage } from "formik";
-
-interface FormMessage {
-  message: string;
-}
-const initialValues: FormMessage = {
-  message: "",
-};
+import React, { useState } from "react";
+import ConvertProposal from "@/components/launch/ConvertProposals";
+import CreateProposal from "@/components/launch/CreateProposal";
 
 const Launch = () => {
+  const [activeTab, setActiveTab] = useState(1);
+
+  const tabs = [
+    { title: "Create Proposal", content: <CreateProposal /> },
+    { title: "Convert Proposal", content: <ConvertProposal /> },
+  ];
+
+  const handleTabClick = (index: number) => {
+    setActiveTab(index);
+  };
+
+  const renderTabs = () => {
+    return (
+      <div className="flex gap-10 items-center">
+        {tabs.map((tab, index) => (
+          <div
+            key={index}
+            onClick={() => handleTabClick(index)}
+            className={
+              activeTab === index
+                ? "underline underline-offset-4 cursor-pointer"
+                : "cursor-pointer"
+            }
+          >
+            {tab.title}
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <>
       <div>
         {/* --------------------------------------- form --------------------------  */}
-        <Formik
-          initialValues={initialValues}
-          onSubmit={(values, actions) => {
-            console.log({ values, actions });
-            alert(JSON.stringify(values, null, 2));
-            actions.setSubmitting(false);
-          }}
-        >
-          <Form>
-            <div className="text-center">
-              Submit your project proposals and ideas for community votes and
-              crowdfunding
-            </div>
-            <div className="flex justify-center mt-5">
-              <Field
-                as="textarea"
-                id="message"
-                name="message"
-                rows="8"
-                cols="50"
-                className="bg-white/5 border border-white/40 px-4 py-4 rounded-sm backdrop-blur-lg text-sm"
-              />
-            </div>
-            <div className="flex justify-center mt-5">
-              <Button variant="primary" size="md" type="submit">
-                Create Proposal
-              </Button>
-            </div>
-          </Form>
-        </Formik>
+        <div className="flex justify-center mb-8">{renderTabs()}</div>
         {/* --------------------------------------- form --------------------------  */}
+        <section id={tabs[activeTab]?.title} className="">
+          {tabs[activeTab]?.content}
+        </section>
       </div>
     </>
   );

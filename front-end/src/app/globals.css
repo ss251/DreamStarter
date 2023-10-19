@@ -26,6 +26,9 @@ body {
     rgb(var(--background-start-rgb));
 }
 
+.ant-modal-content {
+  background-color: #121a2e !important;
+}
 .glow::before {
   content: "";
   position: absolute;
