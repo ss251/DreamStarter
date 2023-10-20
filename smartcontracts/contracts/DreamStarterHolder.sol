@@ -7,12 +7,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./common/ERC721A/ERC721A.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-    /**
-     * validate()
-     * change claimback
-     * add YieldSubmission
-     * 
-     */
+   
 error DreamStarterHolder__ProposalRejected();
 error DreamStarterHolder_ClaimedNotPossible();
 error DreamStarterHolder_NotEnoughFunds();
@@ -25,6 +20,7 @@ contract DreamStarterHolder is Context, ERC721A , ReentrancyGuard {
     bool public isYieldReturned;
     bool public isProposalRejected;
     bool public isProposalCleared;
+    bool public ifOperatorApproveRefund;
 
     address public immutable proposalCreator;
 
@@ -35,9 +31,11 @@ contract DreamStarterHolder is Context, ERC721A , ReentrancyGuard {
     uint256 public salePrice;
     uint256 public stakingAmount;
 
+    uint256 public immutable maxSupply; /// @notice Max supply  of tokens can minted . Calculated CrowdfundingGoal / SalePrice
+    uint256 public immutable yeildToBeRecieved;/// @notice the value of yield to be submitted by proposalCreator
+    
     uint8 public numberOfMileStones;
-    uint8 public immutable yieldBasisPoints;
-   
+    uint8 public immutable yieldBasisPoints; /// @notice the percentage of yield the proposal creator will submit
 
     string public baseURI;
 
@@ -111,10 +109,15 @@ contract DreamStarterHolder is Context, ERC721A , ReentrancyGuard {
         uint256 indexed amount
     );
 
-    event Donation(
-        uint256 amount,
-        address  doner,
-        uint256 gas
+    event YieldSubmitted(
+        bool state,
+        uint256 amount
+    );
+
+    event Validate(
+        bool isPaused,
+        bool isproposalCleared,
+        bool isproposalRejected
     );
 
 
@@ -134,15 +137,16 @@ contract DreamStarterHolder is Context, ERC721A , ReentrancyGuard {
      */
 
     constructor(
-        address _proposalCreator,//1
-        string memory proposalName,//2
-        string memory proposalSymbol,//3
-        uint256 []  memory proposalDetails,//4
-        uint8 yieldRate,//5
-        string memory _baseURI,//6
-        address [] memory contractAddr//7
+        address _proposalCreator,
+        string memory proposalName,
+        string memory proposalSymbol,
+        uint256 []  memory proposalDetails,
+        uint8 yieldRate,
+        string memory _baseURI,
+        address [] memory contractAddr
     ) ERC721A(proposalName, proposalSymbol) {
         proposalCreator = _proposalCreator;
+
         require(proposalDetails.length == 4,"DreamStarterHolder: Invalid Proposal Input");
         crowdFundingGoal = proposalDetails[0];
         fundingActiveTime = block.timestamp + proposalDetails[1];
@@ -150,23 +154,23 @@ contract DreamStarterHolder is Context, ERC721A , ReentrancyGuard {
         salePrice = proposalDetails[3];
         yieldBasisPoints = yieldRate;
         baseURI = _baseURI;
+        
         require(contractAddr.length == 2,"DreamStarterHolder: Invalid Contract Input");
         token = IERC20(contractAddr[0]);
         flowRoles = IACCESSMASTER(contractAddr[1]);
+
+        uint256 amount = (crowdFundingGoal * yieldBasisPoints) / 100; 
+        yeildToBeRecieved = crowdFundingGoal + amount;
+        maxSupply = crowdFundingGoal / salePrice;
+        pause = true;
     }
 
-
-    /// @dev for donation
-    receive() external payable{
-        emit Donation(msg.value,_msgSender(),gasleft());
-    }   
 
     /** Private/Internal Functions **/
     function _pause() private {
         pause = true;
     }
-
-    /// @dev to pause the withdrawal by proposal Creator
+    
     function _unpause() private {
         pause = false;
     }
@@ -179,12 +183,18 @@ contract DreamStarterHolder is Context, ERC721A , ReentrancyGuard {
 
     /// @dev to transfer ERC20 Funds from one address to another
     function _transferFunds(address from,address to,uint256 amount) private  returns(bool){
-        uint256 value =  token.balanceOf(_msgSender());
-        require(value >= amount,"DreamStarterHolder: Not Enough Funds!");
-        bool success = token.transferFrom(from,to,amount);
-        require(success, "DreamStarterHolder: Transfer failed"); 
-        emit FundsTransferred(from,to,amount);
-        return success;       
+        uint256 value = token.balanceOf(from);
+        require(value >= amount, "DreamStarterCollab: Not Enough Funds!");
+        bool success;
+        if (from == address(this)) {
+            success = token.transfer(to, amount);
+            require(success, "DreamStarterCollab: Transfer failed");
+        } else {
+            success = token.transferFrom(from, to, amount);
+            require(success, "DreamStarterCollab: Transfer failed");
+        }
+        emit FundsTransferred(from, to, amount);
+        return success; 
     }
 
       /** PUBLIC/EXTERNAL Function */
@@ -217,7 +227,10 @@ contract DreamStarterHolder is Context, ERC721A , ReentrancyGuard {
 
     ///@dev this function can be called only once for the intialization of first milestone funding, only by creator
     function intiateProposalFunding()external onlyProposalCreator {
-        require(fundsInReserve == crowdFundingGoal && numberOfMileStones == 0,"DreamStarterHolder: Proposal cannot be intiated");
+        require(
+            fundsInReserve == crowdFundingGoal && numberOfMileStones == 0,
+            "DreamStarterHolder: Proposal cannot be intiated"
+        );
         _unpause();
     }
 
@@ -234,8 +247,16 @@ contract DreamStarterHolder is Context, ERC721A , ReentrancyGuard {
 
       /// @dev user have to stake the 20% of the funding goal as security deposit , if the user doesn't stake 
     /// the funding will never start and get Automatically rejected
-    function stake() external onlyProposalCreator onlyWhenProposalIsNotActive{
-        stakingAmount = (crowdFundingGoal * 20) / 100; 
+    function stake(uint256 amount) external onlyProposalCreator onlyWhenProposalIsNotActive{
+        stakingAmount = (crowdFundingGoal * 20) / 100;
+         require(
+            amount == stakingAmount,
+            "DreamStarterCollab: Funds should be equal to staking amount"
+        );
+        require(
+            isCreatorStaked == false,
+            "DreamStarter: Proposal Creator already staked"
+        );
         isCreatorStaked = _transferFunds(_msgSender(),address(this),stakingAmount);
         emit Staked(stakingAmount,isCreatorStaked);
     }
@@ -245,8 +266,15 @@ contract DreamStarterHolder is Context, ERC721A , ReentrancyGuard {
     /// it will be start when fundingActiveTime is reached, it will end when fundingEndTime is reached
     /// funding will be only work until crowfunding goal is reached , even before fundingEndTime
     function mintTicket(uint256 quantity)external returns (uint256 prevQuntity,uint256 currentQuantity) {
-        require(block.timestamp >= fundingActiveTime || block.timestamp < fundingEndTime,"DreamStarterHolder: Funding cannot be done");
-        require(fundsInReserve <= crowdFundingGoal,"DreamStarterHolder: Funding goal has been reached");
+        require(
+            isProposalRejected == false,
+            "DreamStarterCollab : Proposal is being rejected"
+        );
+        require(
+            totalSupply() + quantity <= maxSupply,
+            "DreamStarterHolder: Amount cannot be minted!"
+        );
+        require(block.timestamp >= fundingActiveTime && block.timestamp < fundingEndTime,"DreamStarterHolder: Funding cannot be done"); 
         /// if the creator didn't staked the proposal will be rejected and users can claimback
         if(isCreatorStaked == false){
                 _proposalRejection();
@@ -256,15 +284,22 @@ contract DreamStarterHolder is Context, ERC721A , ReentrancyGuard {
         uint256 amount = quantity * salePrice;
         _transferFunds(_msgSender(),address(this),amount);
         fundsInReserve += amount;
-
         _safeMint(_msgSender(), quantity);
         emit TicketMinted(prevQuntity,totalSupply() ,_msgSender());
         currentQuantity = totalSupply();
     }
+
     /// @notice only Proposal Creator  can withdraw the funds collected
     function withdrawFunds(address wallet, uint256 amount) external onlyProposalCreator onlyWhenNotPaused nonReentrant{
-        uint256 val = (crowdFundingGoal * 20) / 100;
-        require(amount < val && fundsInReserve > 0,"DreamStarterHolder: Amount to be collected more than staked");
+        require(
+            amount <= stakingAmount && fundsInReserve > 0,
+            "DreamStarterHolder: Amount to be collected more than staked"
+        );
+         require(
+            fundsInReserve >= amount,
+            "DreamStarterCollab: Process cannot proceed , more than reserve fund"
+        );
+
         fundsInReserve -= amount;
         _pause();
         _transferFunds(address(this),wallet,amount);
@@ -291,7 +326,7 @@ contract DreamStarterHolder is Context, ERC721A , ReentrancyGuard {
                 _pause();
             }
         }
-       
+       emit Validate(result,isProposalCleared,proposalRejectedStatus);
     }
     
      /// @dev the users can claimback the amount they have deposited through purchasing 
@@ -301,7 +336,7 @@ contract DreamStarterHolder is Context, ERC721A , ReentrancyGuard {
        uint nftBalance = balanceOf(_msgSender());
        uint256 amountToClaim ;
        uint256 refundValue;
-       require(nftBalance > 0,"DreamStarterHolder: User is not the token owner");
+       require(nftBalance > 0,"DreamStarterHolder: User cannot claimback");
        require(refundStatus[_msgSender()] == false,"DreamStarterHolder: Refund is already claimed!");
        if(fundingEndTime < block.timestamp && fundsInReserve != crowdFundingGoal){   
             refundValue = refundAmount(fundsInReserve);
@@ -322,8 +357,16 @@ contract DreamStarterHolder is Context, ERC721A , ReentrancyGuard {
             return (refundValue,refundStatus[_msgSender()]);
        }
        else if(isYieldReturned){
-            uint256 yieldReturns = calculateYieldReturns();
-            refundValue = refundAmount(yieldReturns);
+            refundValue = refundAmount(yeildToBeRecieved);
+            refundStatus[_msgSender()] = true;
+            amountToClaim = nftBalance * refundValue;
+           _transferFunds(address(this),_msgSender(),amountToClaim);
+           emit RefundClaimed(nftBalance,_msgSender(),amountToClaim);
+           return (refundValue,refundStatus[_msgSender()]);
+       }
+       else if(ifOperatorApproveRefund){
+            uint256 value = token.balanceOf(address(this));
+            refundValue = refundAmount(value);
             refundStatus[_msgSender()] = true;
             amountToClaim = nftBalance * refundValue;
            _transferFunds(address(this),_msgSender(),amountToClaim);
@@ -340,19 +383,20 @@ contract DreamStarterHolder is Context, ERC721A , ReentrancyGuard {
     /// if proposal creator address have less than the yeild it should
     /// it would be taken from staking amount
     function yieldSubmission() external onlyProposalCreator{
-       if(isYieldReturned == true) revert DreamStarterHolder_NotEnoughFunds();
-       uint256 yieldReturns = calculateYieldReturns();
-       uint256 balanceOfCreator = token.balanceOf(proposalCreator);
-       if(balanceOfCreator >=  yieldReturns){
-            _transferFunds(_msgSender(),address(this),yieldReturns);
+        require(isYieldReturned == false,"DreamStarterHolder: Action cannot be proceeded");
+        uint256 balanceOfCreator = token.balanceOf(proposalCreator);
+        if(balanceOfCreator >=  yeildToBeRecieved){
+            _transferFunds(_msgSender(),address(this),yeildToBeRecieved);
             isYieldReturned = true;
-       }
-       else{
-            uint256 deficit = yieldReturns - balanceOfCreator;
+            emit YieldSubmitted(true,yeildToBeRecieved);
+        }
+        else{
+            uint256 deficit = yeildToBeRecieved - balanceOfCreator;
             if(deficit <= stakingAmount){
                 _transferFunds(_msgSender(),address(this),balanceOfCreator);
                 stakingAmount -= deficit;
                 isYieldReturned = true;
+                emit YieldSubmitted(true,yeildToBeRecieved);
             }
             else{
                 revert DreamStarterHolder_NotEnoughFunds();
@@ -361,14 +405,20 @@ contract DreamStarterHolder is Context, ERC721A , ReentrancyGuard {
 
     }
 
-        /// @dev if everything is cleared for the Proposal creator , the user can  unstake their funds 
+    /// @dev if everything is cleared for the Proposal creator , the user can  unstake their funds 
     function unStake() external onlyProposalCreator  returns(uint256) {
-        require(isProposalCleared == true && isCreatorStaked == true,"DreamStarterHolder: User cannot withdraw funds");
-        require(stakingAmount > 0,"DreamStarterHolder: Not Enough Funds");
+        require(
+            isProposalCleared == true && isCreatorStaked == true,
+            "DreamStarterHolder: User cannot withdraw funds");
+        require(stakingAmount > 0,"DreamStarterHolder: Not Enough Staking Funds");
+        if(fundsInReserve == 0){
+            require(isYieldReturned == true,"DreamStarterHolder: Yield is not submitted");
+        }
         isCreatorStaked = false;
         _transferFunds(address(this),proposalCreator,stakingAmount);   
         return stakingAmount;     
     }
+
 
     /** OPERATOR FUNCTIONS */
       /// @dev if unsupported tokens or accidently someone send some tokens to the contract to withdraw that 
@@ -386,6 +436,11 @@ contract DreamStarterHolder is Context, ERC721A , ReentrancyGuard {
             _pause();
         }
         else _unpause();
+    }
+
+     /// @dev forcefull unpause or pause by operator if situations comes
+    function OperatorApproveRefund(bool state) external onlyOperator{
+        ifOperatorApproveRefund = state;
     }
 
      /// @dev intiated rejection if the something fishy happens
@@ -409,13 +464,6 @@ contract DreamStarterHolder is Context, ERC721A , ReentrancyGuard {
          refundValue  = amount / totalSupply();
 
     }
-
-    function calculateYieldReturns()public view  returns (uint256 yield) {
-        uint256 amount = (crowdFundingGoal * yieldBasisPoints) / 100;        
-        yield = crowdFundingGoal + amount;
-    }
-
-    /////////////////////////////////////////////////
     /**
      * @dev See {IERC165-supportsInterface}.
      */
