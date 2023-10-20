@@ -2,21 +2,17 @@
 
 import Nav from "@/components/LandingPage/Nav";
 import "./globals.css";
-import { Inter, Taviraj, Montserrat } from "next/font/google";
+import { Montserrat } from "next/font/google";
 
 import React, { FC, useState, useEffect } from "react";
-import { GiTakeMyMoney } from "react-icons/gi";
-import Button from "@/components/common/Button";
-import { modalConfig, openloginAdapter, web3AuthConfig } from "@/web3";
-import { Web3AuthModalPack, Web3AuthConfig } from "@safe-global/auth-kit";
-import { Web3AuthOptions } from "@web3auth/modal";
-import { OpenloginAdapter } from "@web3auth/openlogin-adapter";
+
+import { modalConfig, openloginAdapter } from "@/web3";
+import { Web3AuthModalPack } from "@safe-global/auth-kit";
+
 import {
   ADAPTER_EVENTS,
-  CHAIN_NAMESPACES,
   SafeEventEmitterProvider,
   UserInfo,
-  WALLET_ADAPTERS,
 } from "@web3auth/base";
 import { Web3AuthEventListener } from "@safe-global/auth-kit";
 import { AuthKitSignInData } from "@safe-global/auth-kit";
