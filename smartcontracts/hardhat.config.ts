@@ -68,10 +68,10 @@ module.exports = {
     maticmum: {
       networkId: 80001,
       url: MATICMUM_RPC_URL,
-      accounts: [PRIVATE_KEY],
-      // accounts: {
-      //   mnemonic: MNEMONIC,
-      // },
+      // accounts: [PRIVATE_KEY],
+      accounts: {
+        mnemonic: MNEMONIC,
+      },
     },
     sepolia: {
       networkId: 11155111,
