@@ -38,9 +38,8 @@ const Launch = () => {
   return (
     <>
       <div>
-        {/* --------------------------------------- form --------------------------  */}
         <div className="flex justify-center mb-8">{renderTabs()}</div>
-        {/* --------------------------------------- form --------------------------  */}
+
         <section id={tabs[activeTab]?.title} className="">
           {tabs[activeTab]?.content}
         </section>
