@@ -29,8 +29,6 @@ export interface DreamStarterCollabInterface extends utils.Interface {
     "fundingEndTime()": FunctionFragment;
     "fundsInReserve()": FunctionFragment;
     "getApproved(uint256)": FunctionFragment;
-    "getBlockNumber()": FunctionFragment;
-    "getTime()": FunctionFragment;
     "intiateProposalFunding()": FunctionFragment;
     "intiateRejection()": FunctionFragment;
     "intiateRejectionByOperator()": FunctionFragment;
@@ -66,7 +64,6 @@ export interface DreamStarterCollabInterface extends utils.Interface {
     "validate(bool,bool)": FunctionFragment;
     "withdrawFundByOperator(address,uint256,address)": FunctionFragment;
     "withdrawFunds(address,uint256)": FunctionFragment;
-    "yieldBasisPoint()": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -99,11 +96,6 @@ export interface DreamStarterCollabInterface extends utils.Interface {
     functionFragment: "getApproved",
     values: [BigNumberish]
   ): string;
-  encodeFunctionData(
-    functionFragment: "getBlockNumber",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "getTime", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "intiateProposalFunding",
     values?: undefined
@@ -226,10 +218,6 @@ export interface DreamStarterCollabInterface extends utils.Interface {
     functionFragment: "withdrawFunds",
     values: [string, BigNumberish]
   ): string;
-  encodeFunctionData(
-    functionFragment: "yieldBasisPoint",
-    values?: undefined
-  ): string;
 
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
@@ -255,11 +243,6 @@ export interface DreamStarterCollabInterface extends utils.Interface {
     functionFragment: "getApproved",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "getBlockNumber",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "getTime", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "intiateProposalFunding",
     data: BytesLike
@@ -367,15 +350,10 @@ export interface DreamStarterCollabInterface extends utils.Interface {
     functionFragment: "withdrawFunds",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "yieldBasisPoint",
-    data: BytesLike
-  ): Result;
 
   events: {
     "Approval(address,address,uint256)": EventFragment;
     "ApprovalForAll(address,address,bool)": EventFragment;
-    "Donation(uint256,address,uint256)": EventFragment;
     "FundWithdrawnByHandler(uint8,uint256,address)": EventFragment;
     "FundsTransferred(address,address,uint256)": EventFragment;
     "MileStoneSubmitted(string)": EventFragment;
@@ -384,11 +362,11 @@ export interface DreamStarterCollabInterface extends utils.Interface {
     "TicketMinted(uint256,address)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
     "Unstaked(uint256,bool)": EventFragment;
+    "Validate(bool,bool,bool)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ApprovalForAll"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Donation"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FundWithdrawnByHandler"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FundsTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MileStoneSubmitted"): EventFragment;
@@ -397,6 +375,7 @@ export interface DreamStarterCollabInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "TicketMinted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Unstaked"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Validate"): EventFragment;
 }
 
 export type ApprovalEvent = TypedEvent<
@@ -412,13 +391,6 @@ export type ApprovalForAllEvent = TypedEvent<
 >;
 
 export type ApprovalForAllEventFilter = TypedEventFilter<ApprovalForAllEvent>;
-
-export type DonationEvent = TypedEvent<
-  [BigNumber, string, BigNumber],
-  { amount: BigNumber; doner: string; gas: BigNumber }
->;
-
-export type DonationEventFilter = TypedEventFilter<DonationEvent>;
 
 export type FundWithdrawnByHandlerEvent = TypedEvent<
   [number, BigNumber, string],
@@ -476,6 +448,13 @@ export type UnstakedEvent = TypedEvent<
 
 export type UnstakedEventFilter = TypedEventFilter<UnstakedEvent>;
 
+export type ValidateEvent = TypedEvent<
+  [boolean, boolean, boolean],
+  { isPaused: boolean; isproposalCleared: boolean; isproposalRejected: boolean }
+>;
+
+export type ValidateEventFilter = TypedEventFilter<ValidateEvent>;
+
 export interface DreamStarterCollab extends BaseContract {
   contractName: "DreamStarterCollab";
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -531,10 +510,6 @@ export interface DreamStarterCollab extends BaseContract {
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[string]>;
-
-    getBlockNumber(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    getTime(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     intiateProposalFunding(
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -691,8 +666,6 @@ export interface DreamStarterCollab extends BaseContract {
       amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
-
-    yieldBasisPoint(overrides?: CallOverrides): Promise<[number]>;
   };
 
   approve(
@@ -722,10 +695,6 @@ export interface DreamStarterCollab extends BaseContract {
     tokenId: BigNumberish,
     overrides?: CallOverrides
   ): Promise<string>;
-
-  getBlockNumber(overrides?: CallOverrides): Promise<BigNumber>;
-
-  getTime(overrides?: CallOverrides): Promise<BigNumber>;
 
   intiateProposalFunding(
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -874,8 +843,6 @@ export interface DreamStarterCollab extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  yieldBasisPoint(overrides?: CallOverrides): Promise<number>;
-
   callStatic: {
     approve(
       to: string,
@@ -904,10 +871,6 @@ export interface DreamStarterCollab extends BaseContract {
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<string>;
-
-    getBlockNumber(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getTime(overrides?: CallOverrides): Promise<BigNumber>;
 
     intiateProposalFunding(overrides?: CallOverrides): Promise<void>;
 
@@ -1042,8 +1005,6 @@ export interface DreamStarterCollab extends BaseContract {
       amount: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    yieldBasisPoint(overrides?: CallOverrides): Promise<number>;
   };
 
   filters: {
@@ -1068,13 +1029,6 @@ export interface DreamStarterCollab extends BaseContract {
       operator?: string | null,
       approved?: null
     ): ApprovalForAllEventFilter;
-
-    "Donation(uint256,address,uint256)"(
-      amount?: null,
-      doner?: null,
-      gas?: null
-    ): DonationEventFilter;
-    Donation(amount?: null, doner?: null, gas?: null): DonationEventFilter;
 
     "FundWithdrawnByHandler(uint8,uint256,address)"(
       milestoneNumber?: null,
@@ -1143,6 +1097,17 @@ export interface DreamStarterCollab extends BaseContract {
       state?: null
     ): UnstakedEventFilter;
     Unstaked(amount?: BigNumberish | null, state?: null): UnstakedEventFilter;
+
+    "Validate(bool,bool,bool)"(
+      isPaused?: null,
+      isproposalCleared?: null,
+      isproposalRejected?: null
+    ): ValidateEventFilter;
+    Validate(
+      isPaused?: null,
+      isproposalCleared?: null,
+      isproposalRejected?: null
+    ): ValidateEventFilter;
   };
 
   estimateGas: {
@@ -1173,10 +1138,6 @@ export interface DreamStarterCollab extends BaseContract {
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    getBlockNumber(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getTime(overrides?: CallOverrides): Promise<BigNumber>;
 
     intiateProposalFunding(
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1336,8 +1297,6 @@ export interface DreamStarterCollab extends BaseContract {
       amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
-
-    yieldBasisPoint(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -1371,10 +1330,6 @@ export interface DreamStarterCollab extends BaseContract {
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
-
-    getBlockNumber(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getTime(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     intiateProposalFunding(
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1538,7 +1493,5 @@ export interface DreamStarterCollab extends BaseContract {
       amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
-
-    yieldBasisPoint(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

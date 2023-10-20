@@ -312,7 +312,8 @@ import { Address } from "cluster"
             let afterBalance = await token.balanceOf(buyer.address)
             let diff = afterBalance.sub(prevBalance)
             expect(diff).to.be.equal(amount)
-        
+            ///Once claimed Back cannot be refunded 
+            expect(dreamstarter.connect(buyer).claimback(2)).to.be.reverted
         })
         
     })

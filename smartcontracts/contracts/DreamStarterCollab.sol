@@ -9,37 +9,38 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "hardhat/console.sol";
 
-/**
- * validate()
- */
+
 error DreamStarterCollab__ProposalRejected();
 error DreamStarterCollab_ClaimedNotPossible();
 
+/**
+ * @title DreamStarterCollab - A Collaborative Crowdfunding NFT Smart Contract
+ * @dev This contract enables the creation of crowdfunding campaigns as NFTs. Each NFT represents a unique crowdfunding opportunity with milestones.
+ */
 contract DreamStarterCollab is Context, ERC721Enumerable, ReentrancyGuard {
     using Counters for Counters.Counter;
 
     Counters.Counter private _tokenIdTracker;
 
-    bool public pause;
-    bool public isCreatorStaked;
-    bool public isProposalRejected;
-    bool public isProposalCleared;
+    bool public pause; /// @notice if the contract is paused or not 
+    bool public isCreatorStaked; /// @notice if creator has staked or not
+    bool public isProposalRejected; /// @notice if the Proposal has been rejected or not
+    bool public isProposalCleared;/// @notice  if the proposal has cleared the event funding without dispute
 
-    address public immutable proposalCreator;
+    address public immutable proposalCreator; 
 
     uint256 public immutable crowdFundingGoal;
     uint256 public fundsInReserve; ///@dev to know how much fund is collected still yet before the
-    uint256 public fundingActiveTime;
-    uint256 public fundingEndTime;
-    uint256 public salePrice;
+    uint256 public fundingActiveTime; /// @notice crowfund start time
+    uint256 public fundingEndTime; /// @notice  crowfund end time
+    uint256 public salePrice; /// @notice Sale Price of per NFT
 
-    uint8 public numberOfMileStones;
-    uint8 public yieldBasisPoint;
+    uint8 public numberOfMileStones; /// @notice number of times user has taken out funding
 
-    string public baseURI;
+    string public baseURI; /// @notice  for NFT metadata
 
-    string[] public mileStone;
-    mapping(uint256 => bool) public refundStatus;
+    string[] public mileStone; /// @notice  store the ipfs hash 
+    mapping(uint256 => bool) public refundStatus; /// @dev  if refund has been intiated or not 
 
     IACCESSMASTER flowRoles;
     IERC20 token;
@@ -72,47 +73,65 @@ contract DreamStarterCollab is Context, ERC721Enumerable, ReentrancyGuard {
         _;
     }
 
+    /**
+     * @dev Event emitted when an NFT ticket is minted.
+     */
     event TicketMinted(uint256 tokenID, address indexed creator);
 
+     /**
+     * @dev Event emitted when a milestone is submitted.
+     */
     event MileStoneSubmitted(string data);
 
+     /**
+     * @dev Event emitted when the proposal creator stakes funds.
+     */
     event Staked(uint256 indexed amount, bool state);
 
+      /**
+     * @dev Event emitted when the proposal creator unstakes funds.
+     */
     event Unstaked(uint256 indexed amount, bool state);
 
+     /**
+     * @dev Event emitted when funds are withdrawn by the proposal creator.
+     */
     event FundWithdrawnByHandler(
         uint8 milestoneNumber,
         uint256 amount,
         address wallet
     );
-
+     /**
+     * @dev Event emitted when ERC20 funds are transferred.
+     */
     event FundsTransferred(
         address indexed toWallet,
         address indexed fromWallet,
         uint256 indexed amount
     );
-
+      /**
+     * @dev Event emitted when a refund is claimed.
+     */
     event RefundClaimed(
         uint256 indexed tokenId,
         address indexed owner,
         uint256 indexed amount
     );
-
-    event Donation(uint256 amount, address doner, uint256 gas);
+    event Validate(
+        bool isPaused,
+        bool isproposalCleared,
+        bool isproposalRejected
+    );
 
     /**
-     *
-     * @param _proposalCreator - who is  creating the proposal
-     * @param proposalName - Name of the event as well as NFT token Name
-     * @param proposalSymbol - Symbol of the event as well as the NFT token symbol
-     * @param proposalDetails - First parameter crowdfunding goal which should be in stablecoin ,
-     * Second parameter is the starting time of proposal, third parameter is endingTime of the proposal
-     * fourth parameter is the Price of the NFT
-     * @param _baseURI - BaseURI  of  NFT for it's details
-     * @param contractAddr  - first parameter is the contract stableCoin Address for recieving funds and
-     * second parameter is Accessmaster Address  for the company
+     * @dev Constructor to initialize the contract.
+     * @param _proposalCreator - Address of the creator of the proposal.
+     * @param proposalName - Name of the NFT representing the crowdfunding campaign.
+     * @param proposalSymbol - Symbol of the NFT.
+     * @param proposalDetails - Array with the crowdfunding goal (in stablecoin), funding start time, funding end time, and NFT sale price.
+     * @param _baseURI - BaseURI for NFT details.
+     * @param contractAddr - Array with two addresses: the contract's stablecoin address for receiving funds and the AccessMaster address for the company.
      */
-
     constructor(
         address _proposalCreator,
         string memory proposalName,
@@ -141,19 +160,12 @@ contract DreamStarterCollab is Context, ERC721Enumerable, ReentrancyGuard {
         pause = true;
     }
 
-    /// @dev for donation
-    receive() external payable {
-        emit Donation(msg.value, _msgSender(), gasleft());
-    }
-
     /** Private/Internal Functions **/
 
-    /// @dev to pause the withdrawal by proposal Creator
     function _pause() private {
         pause = true;
     }
 
-    /// @dev to unpause the withdrawal by proposal Creator
     function _unpause() private {
         pause = false;
     }
@@ -170,7 +182,7 @@ contract DreamStarterCollab is Context, ERC721Enumerable, ReentrancyGuard {
         address to,
         uint256 amount
     ) private returns (bool) {
-        uint256 value = token.balanceOf(_msgSender());
+        uint256 value = token.balanceOf(from);
         require(value >= amount, "DreamStarterCollab: Not Enough Funds!");
         bool success;
         if (from == address(this)) {
@@ -186,25 +198,30 @@ contract DreamStarterCollab is Context, ERC721Enumerable, ReentrancyGuard {
 
     /** PUBLIC/EXTERNAL Function */
 
-    ///@dev the function will be called only by proposal Creator to change the funding start time ,
-    /// only when funding hasn't started
-    /// @param time - it is in UNIX time
+    /**
+     * @dev Allows the proposal creator to change the funding start time before the funding has started.
+     * @param time - New funding start time in UNIX time.
+     */
     function setFundingStartTime(
         uint256 time
     ) external onlyProposalCreator onlyWhenProposalIsNotActive {
         fundingActiveTime = block.timestamp + time;
     }
 
-    ///@dev the function will be called only by proposal Creator to change the funding end time ,
-    /// only when funding hasn't started
-    /// @param time - it is in UNIX time
+    /**
+     * @dev Allows the proposal creator to change the funding end time before the funding has started.
+     * @param time - New funding end time in UNIX time.
+     */
     function setFundingEndTime(
         uint256 time
     ) external onlyProposalCreator onlyWhenProposalIsNotActive {
         fundingEndTime = block.timestamp + time;
     }
 
-    /// @dev to submit the milestone as a ipfs hash
+     /**
+     * @dev Submits a milestone description as an IPFS hash. Can only be called by the proposal creator.
+     * @param data - IPFS hash representing the milestone description.
+     */
     function submitMileStoneInfo(
         string memory data
     ) external onlyProposalCreator {
@@ -212,7 +229,10 @@ contract DreamStarterCollab is Context, ERC721Enumerable, ReentrancyGuard {
         emit MileStoneSubmitted(data);
     }
 
-    ///@dev this function can be called only once for the intialization of first milestone funding, only by creator
+    /**
+     * @dev Initializes the first milestone funding. Can only be called by the creator and only once.
+     * This function is used to unpause the funding.
+     */
     function intiateProposalFunding() external onlyProposalCreator {
         require(
             fundsInReserve == crowdFundingGoal && numberOfMileStones == 0,
@@ -221,9 +241,10 @@ contract DreamStarterCollab is Context, ERC721Enumerable, ReentrancyGuard {
         _unpause();
     }
 
-    /// @dev Users must utilize this tool to reject the proposal in order to get their money back
-    /// if the crowdfunding campaign is not finished in the allotted period.
-    /// And it is accessible to everybody.
+    /**
+     * @dev Initializes the first Proposal Rejection. Can only be called by the creator and only once.
+     * This function is used to reject by anyone if funding goal is not reached.
+     */
     function intiateRejection() external {
         require(
             block.timestamp > fundingEndTime &&
@@ -256,9 +277,14 @@ contract DreamStarterCollab is Context, ERC721Enumerable, ReentrancyGuard {
         emit Staked(stakingAmount, isCreatorStaked);
     }
 
-    /// @dev this function is for purchasing NFT and minting it
-    /// it will be start when fundingActiveTime is reached, it will end when fundingEndTime is reached
-    /// funding will be only work until crowfunding goal is reached , even before fundingEndTime
+   
+    /**
+     * @dev Mints an NFT representing a crowdfunding ticket and collects funds for the campaign.
+     * Can only be called when the fundingActiveTime has started and before fundingEndTime is reached.
+     *  Can only be called when Proposal is not rejected or Crowfunding goal haven't reached
+     * Refunds are possible if the funding goal is not reached or if the proposal is rejected.
+     * @return currentTokenID - The ID of the minted NFT.
+     */
     function mintTicket() external returns (uint256) {
         require(
             isProposalRejected == false,
@@ -286,14 +312,19 @@ contract DreamStarterCollab is Context, ERC721Enumerable, ReentrancyGuard {
         return currentTokenID;
     }
 
-    /// @notice only Proposal  Creator  can withdraw the funds collected from this function , if unpaused
+    /**
+     * @dev Allows the proposal creator to withdraw funds collected from milestone completions.
+     * Can only be called when the contract is not paused and when the proposal is cleared.
+     * @param wallet - Address to which funds will be withdrawn.
+     * @param amount - Amount to be withdrawn.
+     */
     function withdrawFunds(
         address wallet,
         uint256 amount
     ) external onlyProposalCreator onlyWhenNotPaused nonReentrant {
         uint256 val = (crowdFundingGoal * 20) / 100;
         require(
-            amount < val && fundsInReserve > 0,
+            amount <= val && fundsInReserve > 0,
             "DreamStarterCollab: Amount to be collected more than staked"
         );
         require(
@@ -307,8 +338,12 @@ contract DreamStarterCollab is Context, ERC721Enumerable, ReentrancyGuard {
         emit FundWithdrawnByHandler(numberOfMileStones, amount, wallet);
     }
 
-    /// validate()  -> To unpause  or Reject or  to set if proposal is all cleared or not
-
+     /**
+     * @dev Validates the proposal, either unpauses or rejects the proposal, and sets the cleared status.
+     * Can only be called by operators.
+     * @param result - Boolean indicating the validation result.
+     * @param proposalRejectedStatus - Boolean indicating if the proposal is rejected.
+     */
     function validate(
         bool result,
         bool proposalRejectedStatus
@@ -326,14 +361,20 @@ contract DreamStarterCollab is Context, ERC721Enumerable, ReentrancyGuard {
                 _pause();
             }
         }
+        emit Validate(result,isProposalCleared,proposalRejectedStatus);
     }
 
-    /// @dev the users can claimback the amount they have deposited through purchasing
-    /// if either funding Goal is not reached or  Proposal Is rejected
+   /**
+     * @dev Allows users to claim back the amount they have deposited through purchasing tickets,
+     * if either the funding goal is not reached or the proposal is rejected.
+     * Refunds are only possible under these conditions.
+     * @param tokenId - ID of the NFT representing the ticket to be refunded.
+     * @return refundValue - The refunded amount.
+     * @return refundStatus[tokenId] - Whether the refund has been claimed for this ticket.
+     */
     function claimback(
         uint256 tokenId
     ) external nonReentrant returns (uint256, bool) {
-        uint nftBalance = balanceOf(_msgSender());
         require(
             ownerOf(tokenId) == _msgSender(),
             "DreamStarter: User is not the token owner"
@@ -347,26 +388,28 @@ contract DreamStarterCollab is Context, ERC721Enumerable, ReentrancyGuard {
             fundsInReserve != crowdFundingGoal
         ) {
             uint256 refundValue = salePrice;
-            uint256 amountToClaim = refundValue * nftBalance;
             refundStatus[tokenId] = true;
-            _transferFunds(address(this), _msgSender(), amountToClaim);
-            emit RefundClaimed(tokenId, _msgSender(), amountToClaim);
+            _transferFunds(address(this), _msgSender(),refundValue);
+            emit RefundClaimed(tokenId, _msgSender(), refundValue);
             return (refundValue, refundStatus[tokenId]);
         } else if (isProposalRejected) {
             uint256 value = (crowdFundingGoal * 20) / 100;
             value += fundsInReserve;
             uint256 refundValue = refundAmount(value);
-            uint256 amountToClaim = refundValue * nftBalance;
             refundStatus[tokenId] = true;
-            _transferFunds(address(this), _msgSender(), amountToClaim);
-            emit RefundClaimed(tokenId, _msgSender(), amountToClaim);
+            _transferFunds(address(this), _msgSender(), refundValue);
+            emit RefundClaimed(tokenId, _msgSender(), refundValue);
             return (refundValue, refundStatus[tokenId]);
         } else {
             revert DreamStarterCollab_ClaimedNotPossible();
         }
     }
 
-    /// @dev if everything is cleared for the Proposal creator , the user can  unstake their funds
+      /**
+     * @dev Allows the proposal creator to unstake their funds if the proposal is cleared.
+     * The funds were initially staked as a security deposit.
+     * @return amount - The amount unstaked by the proposal creator.
+     */
     function unStake() external onlyProposalCreator returns (uint256 amount) {
         require(
             isProposalCleared == true && isCreatorStaked == true,
@@ -377,6 +420,8 @@ contract DreamStarterCollab is Context, ERC721Enumerable, ReentrancyGuard {
         _transferFunds(address(this), proposalCreator, amount);
     }
 
+
+    ///////////////////////////////////////////////////
     /** OPERATOR FUNCTIONS */
     /// @dev if unsupported tokens or accidently someone send some tokens to the contract to withdraw that
     function withdrawFundByOperator(
@@ -399,8 +444,9 @@ contract DreamStarterCollab is Context, ERC721Enumerable, ReentrancyGuard {
         _proposalRejection();
     }
 
-    /** Getter Functions **/
+    ///////////////////////////////////////////////////
 
+    /** Getter Functions **/
     /**
      * @dev Returns the Uniform Resource Identifier (URI) for `tokenId` token.
      */
@@ -416,26 +462,6 @@ contract DreamStarterCollab is Context, ERC721Enumerable, ReentrancyGuard {
     ) public view returns (uint256 refundValue) {
         refundValue = amount / totalSupply();
     }
-
-    function getTime() external view returns (uint256) {
-        return block.timestamp;
-    }
-
-    function getBlockNumber() external view returns (uint256) {
-        return block.number;
-    }
-
-    /////////////////////////////////////////////////
-
-    function _beforeTokenTransfer(
-        address from,
-        address to,
-        uint256 tokenId,
-        uint256 batchSize
-    ) internal virtual override(ERC721Enumerable) {
-        super._beforeTokenTransfer(from, to, tokenId, batchSize);
-    }
-
     /**
      * @dev See {IERC165-supportsInterface}.
      */

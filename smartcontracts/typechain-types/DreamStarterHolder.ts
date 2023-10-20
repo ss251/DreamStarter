@@ -21,16 +21,17 @@ import { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from "./common";
 export interface DreamStarterHolderInterface extends utils.Interface {
   contractName: "DreamStarterHolder";
   functions: {
+    "OperatorApproveRefund(bool)": FunctionFragment;
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
     "baseURI()": FunctionFragment;
-    "calculateYieldReturns()": FunctionFragment;
     "claimback()": FunctionFragment;
     "crowdFundingGoal()": FunctionFragment;
     "fundingActiveTime()": FunctionFragment;
     "fundingEndTime()": FunctionFragment;
     "fundsInReserve()": FunctionFragment;
     "getApproved(uint256)": FunctionFragment;
+    "ifOperatorApproveRefund()": FunctionFragment;
     "intiateProposalFunding()": FunctionFragment;
     "intiateRejection()": FunctionFragment;
     "intiateRejectionByOperator()": FunctionFragment;
@@ -39,6 +40,7 @@ export interface DreamStarterHolderInterface extends utils.Interface {
     "isProposalCleared()": FunctionFragment;
     "isProposalRejected()": FunctionFragment;
     "isYieldReturned()": FunctionFragment;
+    "maxSupply()": FunctionFragment;
     "mileStone(uint256)": FunctionFragment;
     "mintTicket(uint256)": FunctionFragment;
     "name()": FunctionFragment;
@@ -53,7 +55,7 @@ export interface DreamStarterHolderInterface extends utils.Interface {
     "setApprovalForAll(address,bool)": FunctionFragment;
     "setFundingEndTime(uint256)": FunctionFragment;
     "setFundingStartTime(uint256)": FunctionFragment;
-    "stake()": FunctionFragment;
+    "stake(uint256)": FunctionFragment;
     "stakingAmount()": FunctionFragment;
     "submitMileStoneInfo(string)": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
@@ -66,20 +68,21 @@ export interface DreamStarterHolderInterface extends utils.Interface {
     "validate(bool,bool)": FunctionFragment;
     "withdrawFundByOperator(address,uint256,address)": FunctionFragment;
     "withdrawFunds(address,uint256)": FunctionFragment;
+    "yeildToBeRecieved()": FunctionFragment;
     "yieldBasisPoints()": FunctionFragment;
     "yieldSubmission()": FunctionFragment;
   };
 
+  encodeFunctionData(
+    functionFragment: "OperatorApproveRefund",
+    values: [boolean]
+  ): string;
   encodeFunctionData(
     functionFragment: "approve",
     values: [string, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "balanceOf", values: [string]): string;
   encodeFunctionData(functionFragment: "baseURI", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "calculateYieldReturns",
-    values?: undefined
-  ): string;
   encodeFunctionData(functionFragment: "claimback", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "crowdFundingGoal",
@@ -100,6 +103,10 @@ export interface DreamStarterHolderInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "getApproved",
     values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "ifOperatorApproveRefund",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "intiateProposalFunding",
@@ -133,6 +140,7 @@ export interface DreamStarterHolderInterface extends utils.Interface {
     functionFragment: "isYieldReturned",
     values?: undefined
   ): string;
+  encodeFunctionData(functionFragment: "maxSupply", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "mileStone",
     values: [BigNumberish]
@@ -180,7 +188,7 @@ export interface DreamStarterHolderInterface extends utils.Interface {
     functionFragment: "setFundingStartTime",
     values: [BigNumberish]
   ): string;
-  encodeFunctionData(functionFragment: "stake", values?: undefined): string;
+  encodeFunctionData(functionFragment: "stake", values: [BigNumberish]): string;
   encodeFunctionData(
     functionFragment: "stakingAmount",
     values?: undefined
@@ -224,6 +232,10 @@ export interface DreamStarterHolderInterface extends utils.Interface {
     values: [string, BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "yeildToBeRecieved",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "yieldBasisPoints",
     values?: undefined
   ): string;
@@ -232,13 +244,13 @@ export interface DreamStarterHolderInterface extends utils.Interface {
     values?: undefined
   ): string;
 
+  decodeFunctionResult(
+    functionFragment: "OperatorApproveRefund",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "baseURI", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "calculateYieldReturns",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "claimback", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "crowdFundingGoal",
@@ -258,6 +270,10 @@ export interface DreamStarterHolderInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getApproved",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "ifOperatorApproveRefund",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -292,6 +308,7 @@ export interface DreamStarterHolderInterface extends utils.Interface {
     functionFragment: "isYieldReturned",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "maxSupply", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "mileStone", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "mintTicket", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
@@ -368,6 +385,10 @@ export interface DreamStarterHolderInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "yeildToBeRecieved",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "yieldBasisPoints",
     data: BytesLike
   ): Result;
@@ -380,7 +401,6 @@ export interface DreamStarterHolderInterface extends utils.Interface {
     "Approval(address,address,uint256)": EventFragment;
     "ApprovalForAll(address,address,bool)": EventFragment;
     "ConsecutiveTransfer(uint256,uint256,address,address)": EventFragment;
-    "Donation(uint256,address,uint256)": EventFragment;
     "FundWithdrawnByHandler(uint8,uint256,address)": EventFragment;
     "FundsTransferred(address,address,uint256)": EventFragment;
     "MileStoneSubmitted(string)": EventFragment;
@@ -389,12 +409,13 @@ export interface DreamStarterHolderInterface extends utils.Interface {
     "TicketMinted(uint256,uint256,address)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
     "Unstaked(uint256,bool)": EventFragment;
+    "Validate(bool,bool,bool)": EventFragment;
+    "YieldSubmitted(bool,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ApprovalForAll"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ConsecutiveTransfer"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Donation"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FundWithdrawnByHandler"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FundsTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MileStoneSubmitted"): EventFragment;
@@ -403,6 +424,8 @@ export interface DreamStarterHolderInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "TicketMinted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Unstaked"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Validate"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "YieldSubmitted"): EventFragment;
 }
 
 export type ApprovalEvent = TypedEvent<
@@ -426,13 +449,6 @@ export type ConsecutiveTransferEvent = TypedEvent<
 
 export type ConsecutiveTransferEventFilter =
   TypedEventFilter<ConsecutiveTransferEvent>;
-
-export type DonationEvent = TypedEvent<
-  [BigNumber, string, BigNumber],
-  { amount: BigNumber; doner: string; gas: BigNumber }
->;
-
-export type DonationEventFilter = TypedEventFilter<DonationEvent>;
 
 export type FundWithdrawnByHandlerEvent = TypedEvent<
   [number, BigNumber, string],
@@ -490,6 +506,20 @@ export type UnstakedEvent = TypedEvent<
 
 export type UnstakedEventFilter = TypedEventFilter<UnstakedEvent>;
 
+export type ValidateEvent = TypedEvent<
+  [boolean, boolean, boolean],
+  { isPaused: boolean; isproposalCleared: boolean; isproposalRejected: boolean }
+>;
+
+export type ValidateEventFilter = TypedEventFilter<ValidateEvent>;
+
+export type YieldSubmittedEvent = TypedEvent<
+  [boolean, BigNumber],
+  { state: boolean; amount: BigNumber }
+>;
+
+export type YieldSubmittedEventFilter = TypedEventFilter<YieldSubmittedEvent>;
+
 export interface DreamStarterHolder extends BaseContract {
   contractName: "DreamStarterHolder";
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -518,6 +548,11 @@ export interface DreamStarterHolder extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    OperatorApproveRefund(
+      state: boolean,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     approve(
       to: string,
       tokenId: BigNumberish,
@@ -527,10 +562,6 @@ export interface DreamStarterHolder extends BaseContract {
     balanceOf(owner: string, overrides?: CallOverrides): Promise<[BigNumber]>;
 
     baseURI(overrides?: CallOverrides): Promise<[string]>;
-
-    calculateYieldReturns(
-      overrides?: CallOverrides
-    ): Promise<[BigNumber] & { yield: BigNumber }>;
 
     claimback(
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -548,6 +579,8 @@ export interface DreamStarterHolder extends BaseContract {
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[string]>;
+
+    ifOperatorApproveRefund(overrides?: CallOverrides): Promise<[boolean]>;
 
     intiateProposalFunding(
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -574,6 +607,8 @@ export interface DreamStarterHolder extends BaseContract {
     isProposalRejected(overrides?: CallOverrides): Promise<[boolean]>;
 
     isYieldReturned(overrides?: CallOverrides): Promise<[boolean]>;
+
+    maxSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     mileStone(arg0: BigNumberish, overrides?: CallOverrides): Promise<[string]>;
 
@@ -636,6 +671,7 @@ export interface DreamStarterHolder extends BaseContract {
     ): Promise<ContractTransaction>;
 
     stake(
+      amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -695,12 +731,19 @@ export interface DreamStarterHolder extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    yeildToBeRecieved(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     yieldBasisPoints(overrides?: CallOverrides): Promise<[number]>;
 
     yieldSubmission(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
+
+  OperatorApproveRefund(
+    state: boolean,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   approve(
     to: string,
@@ -711,8 +754,6 @@ export interface DreamStarterHolder extends BaseContract {
   balanceOf(owner: string, overrides?: CallOverrides): Promise<BigNumber>;
 
   baseURI(overrides?: CallOverrides): Promise<string>;
-
-  calculateYieldReturns(overrides?: CallOverrides): Promise<BigNumber>;
 
   claimback(
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -730,6 +771,8 @@ export interface DreamStarterHolder extends BaseContract {
     tokenId: BigNumberish,
     overrides?: CallOverrides
   ): Promise<string>;
+
+  ifOperatorApproveRefund(overrides?: CallOverrides): Promise<boolean>;
 
   intiateProposalFunding(
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -756,6 +799,8 @@ export interface DreamStarterHolder extends BaseContract {
   isProposalRejected(overrides?: CallOverrides): Promise<boolean>;
 
   isYieldReturned(overrides?: CallOverrides): Promise<boolean>;
+
+  maxSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
   mileStone(arg0: BigNumberish, overrides?: CallOverrides): Promise<string>;
 
@@ -815,6 +860,7 @@ export interface DreamStarterHolder extends BaseContract {
   ): Promise<ContractTransaction>;
 
   stake(
+    amount: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -871,6 +917,8 @@ export interface DreamStarterHolder extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  yeildToBeRecieved(overrides?: CallOverrides): Promise<BigNumber>;
+
   yieldBasisPoints(overrides?: CallOverrides): Promise<number>;
 
   yieldSubmission(
@@ -878,6 +926,11 @@ export interface DreamStarterHolder extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    OperatorApproveRefund(
+      state: boolean,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     approve(
       to: string,
       tokenId: BigNumberish,
@@ -887,8 +940,6 @@ export interface DreamStarterHolder extends BaseContract {
     balanceOf(owner: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     baseURI(overrides?: CallOverrides): Promise<string>;
-
-    calculateYieldReturns(overrides?: CallOverrides): Promise<BigNumber>;
 
     claimback(overrides?: CallOverrides): Promise<[BigNumber, boolean]>;
 
@@ -904,6 +955,8 @@ export interface DreamStarterHolder extends BaseContract {
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<string>;
+
+    ifOperatorApproveRefund(overrides?: CallOverrides): Promise<boolean>;
 
     intiateProposalFunding(overrides?: CallOverrides): Promise<void>;
 
@@ -924,6 +977,8 @@ export interface DreamStarterHolder extends BaseContract {
     isProposalRejected(overrides?: CallOverrides): Promise<boolean>;
 
     isYieldReturned(overrides?: CallOverrides): Promise<boolean>;
+
+    maxSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
     mileStone(arg0: BigNumberish, overrides?: CallOverrides): Promise<string>;
 
@@ -987,7 +1042,7 @@ export interface DreamStarterHolder extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    stake(overrides?: CallOverrides): Promise<void>;
+    stake(amount: BigNumberish, overrides?: CallOverrides): Promise<void>;
 
     stakingAmount(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1037,6 +1092,8 @@ export interface DreamStarterHolder extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    yeildToBeRecieved(overrides?: CallOverrides): Promise<BigNumber>;
+
     yieldBasisPoints(overrides?: CallOverrides): Promise<number>;
 
     yieldSubmission(overrides?: CallOverrides): Promise<void>;
@@ -1077,13 +1134,6 @@ export interface DreamStarterHolder extends BaseContract {
       from?: string | null,
       to?: string | null
     ): ConsecutiveTransferEventFilter;
-
-    "Donation(uint256,address,uint256)"(
-      amount?: null,
-      doner?: null,
-      gas?: null
-    ): DonationEventFilter;
-    Donation(amount?: null, doner?: null, gas?: null): DonationEventFilter;
 
     "FundWithdrawnByHandler(uint8,uint256,address)"(
       milestoneNumber?: null,
@@ -1154,9 +1204,31 @@ export interface DreamStarterHolder extends BaseContract {
       state?: null
     ): UnstakedEventFilter;
     Unstaked(amount?: BigNumberish | null, state?: null): UnstakedEventFilter;
+
+    "Validate(bool,bool,bool)"(
+      isPaused?: null,
+      isproposalCleared?: null,
+      isproposalRejected?: null
+    ): ValidateEventFilter;
+    Validate(
+      isPaused?: null,
+      isproposalCleared?: null,
+      isproposalRejected?: null
+    ): ValidateEventFilter;
+
+    "YieldSubmitted(bool,uint256)"(
+      state?: null,
+      amount?: null
+    ): YieldSubmittedEventFilter;
+    YieldSubmitted(state?: null, amount?: null): YieldSubmittedEventFilter;
   };
 
   estimateGas: {
+    OperatorApproveRefund(
+      state: boolean,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     approve(
       to: string,
       tokenId: BigNumberish,
@@ -1166,8 +1238,6 @@ export interface DreamStarterHolder extends BaseContract {
     balanceOf(owner: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     baseURI(overrides?: CallOverrides): Promise<BigNumber>;
-
-    calculateYieldReturns(overrides?: CallOverrides): Promise<BigNumber>;
 
     claimback(
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1185,6 +1255,8 @@ export interface DreamStarterHolder extends BaseContract {
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    ifOperatorApproveRefund(overrides?: CallOverrides): Promise<BigNumber>;
 
     intiateProposalFunding(
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1211,6 +1283,8 @@ export interface DreamStarterHolder extends BaseContract {
     isProposalRejected(overrides?: CallOverrides): Promise<BigNumber>;
 
     isYieldReturned(overrides?: CallOverrides): Promise<BigNumber>;
+
+    maxSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
     mileStone(
       arg0: BigNumberish,
@@ -1276,6 +1350,7 @@ export interface DreamStarterHolder extends BaseContract {
     ): Promise<BigNumber>;
 
     stake(
+      amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1335,6 +1410,8 @@ export interface DreamStarterHolder extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    yeildToBeRecieved(overrides?: CallOverrides): Promise<BigNumber>;
+
     yieldBasisPoints(overrides?: CallOverrides): Promise<BigNumber>;
 
     yieldSubmission(
@@ -1343,6 +1420,11 @@ export interface DreamStarterHolder extends BaseContract {
   };
 
   populateTransaction: {
+    OperatorApproveRefund(
+      state: boolean,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     approve(
       to: string,
       tokenId: BigNumberish,
@@ -1355,10 +1437,6 @@ export interface DreamStarterHolder extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     baseURI(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    calculateYieldReturns(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
 
     claimback(
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1374,6 +1452,10 @@ export interface DreamStarterHolder extends BaseContract {
 
     getApproved(
       tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    ifOperatorApproveRefund(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -1404,6 +1486,8 @@ export interface DreamStarterHolder extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     isYieldReturned(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    maxSupply(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     mileStone(
       arg0: BigNumberish,
@@ -1474,6 +1558,7 @@ export interface DreamStarterHolder extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     stake(
+      amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1532,6 +1617,8 @@ export interface DreamStarterHolder extends BaseContract {
       amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
+
+    yeildToBeRecieved(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     yieldBasisPoints(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
