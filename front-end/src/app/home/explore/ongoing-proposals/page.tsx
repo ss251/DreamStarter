@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useState } from "react";
 
 import Button from "@/components/common/Button";
@@ -12,7 +14,7 @@ const OngoingProposal = () => {
     } else alert(`You voted ${selectedValue}`);
   };
   return (
-    <div className="flex justify-center">
+    <div className="flex justify-center mt-8">
       <div>
         {/* --------------------------------------- proposal card -------------------  */}
         <div className="w-[500px] text-white/80 text-sm border rounded-sm border-white/20 px-4 py-4 flex flex-col gap-4">

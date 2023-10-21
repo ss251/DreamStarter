@@ -1,3 +1,5 @@
+"use client"
+
 import React from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import Button from "@/components/common/Button";
@@ -20,7 +22,7 @@ const initialValues: FormMessage = {
 };
 const CreateProposal = () => {
   return (
-    <div className="text-sm">
+    <div className="text-sm mt-8">
       <div className="flex justify-center">
         <Formik
           initialValues={initialValues}
