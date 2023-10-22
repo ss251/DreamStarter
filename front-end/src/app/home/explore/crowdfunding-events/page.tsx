@@ -8,17 +8,15 @@ import { useProposal } from "@/app/ProposalProvider";
 import DreamStarterCollabABI from '../../../../abi/DreamStarterCollab.json'
 import MyTokenABI from '../../../../abi/MyToken.json'
 
-const erc20ContractAddress = '0x8563F7BD1fa85cB75EFB8e710D3971dC3e3C5C8b';
-const stakingContractAddress = '0x6E23d299E066996E3f24322A0636786E4c892030';
-
-const provider = new ethers.providers.Web3Provider(window.ethereum);
-const signer = provider.getSigner();
-
-const erc20Contract = new ethers.Contract(erc20ContractAddress, MyTokenABI, signer);
-const stakingContract = new ethers.Contract(stakingContractAddress, DreamStarterCollabABI, signer);
-
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+
+let erc20ContractAddress = '';
+let stakingContractAddress = '';
+let provider: ethers.providers.Web3Provider | null = null;
+let signer = null;
+let erc20Contract: ethers.Contract;
+let stakingContract: ethers.Contract;
 
 const CrowdfundingEvents = () => {
     const { proposal } = useProposal();
@@ -30,12 +28,27 @@ const CrowdfundingEvents = () => {
     const [isCreatorAlreadyStaked, setIsCreatorAlreadyStaked] = useState(false);
 
     useEffect(() => {
+        erc20ContractAddress = '0x8563F7BD1fa85cB75EFB8e710D3971dC3e3C5C8b';
+        stakingContractAddress = '0x6E23d299E066996E3f24322A0636786E4c892030';
+
+        if (typeof window !== 'undefined' && window.ethereum) {
+            provider = new ethers.providers.Web3Provider(window.ethereum);
+            signer = provider.getSigner();
+            
+            erc20Contract = new ethers.Contract(erc20ContractAddress, MyTokenABI, signer);
+            stakingContract = new ethers.Contract(stakingContractAddress, DreamStarterCollabABI, signer);
+        }
+    }, []);
+
+    useEffect(() => {
         async function getNetwork() {
-            const network = await provider.getNetwork();
-            setConnectedNetwork(network.chainId);
+            if (provider) {
+                const network = await provider.getNetwork();
+                setConnectedNetwork(network.chainId);
+            }
         }
         getNetwork();
-    }, []);
+    }, [provider]);
 
     useEffect(() => {
         async function fetchData() {
