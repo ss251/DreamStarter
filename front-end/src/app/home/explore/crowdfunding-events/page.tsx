@@ -22,11 +22,11 @@ import 'react-toastify/dist/ReactToastify.css';
 
 const CrowdfundingEvents = () => {
     const { proposal } = useProposal();
-    const [connectedNetwork, setConnectedNetwork] = useState(null);
-    const [salePrice, setSalePrice] = useState(null);
-    const [crowdFundingGoal, setCrowdFundingGoal] = useState(null);
-    const [totalFunding, setTotalFunding] = useState(null);
-    const [isLoading, setIsLoading] = useState(true);  
+    const [connectedNetwork, setConnectedNetwork] = useState<number | null>(null);
+    const [salePrice, setSalePrice] = useState<string | null>(null);
+    const [crowdFundingGoal, setCrowdFundingGoal] = useState<string | null>(null);
+    const [totalFunding, setTotalFunding] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
     const [isCreatorAlreadyStaked, setIsCreatorAlreadyStaked] = useState(false);
 
     useEffect(() => {
@@ -44,7 +44,7 @@ const CrowdfundingEvents = () => {
                 setSalePrice(ethers.utils.formatEther(price));
 
                 const goal = await stakingContract.crowdFundingGoal();
-                setCrowdFundingGoal(goal);
+                setCrowdFundingGoal(ethers.utils.formatEther(goal));
 
                 const totalSupply = await stakingContract.totalSupply();
                 const nftFunding = totalSupply.mul(price);
@@ -58,7 +58,7 @@ const CrowdfundingEvents = () => {
 
                 setTotalFunding(ethers.utils.formatEther(total));
 
-            } catch (error) {
+            } catch (error: any) {
                 console.error("Error fetching data:", error.message);
             }
             setIsLoading(false);
@@ -69,9 +69,9 @@ const CrowdfundingEvents = () => {
     useEffect(() => {
         async function checkIsCreatorStaked() {
             try {
-                const staked = await stakingContract.isCreatorStaked(); 
+                const staked = await stakingContract.isCreatorStaked();
                 setIsCreatorAlreadyStaked(staked);
-            } catch (error) {
+            } catch (error: any) {
                 console.error("Error checking if creator is staked:", error.message);
             }
         }
@@ -83,34 +83,33 @@ const CrowdfundingEvents = () => {
 
     async function handleMint() {
         try {
-            const weiSalePrice = ethers.utils.parseEther(salePrice);
-    
+            const weiSalePrice = ethers.utils.parseEther(salePrice!);
+
             // Approve the staking contract
             const approveTx = await erc20Contract.approve(stakingContractAddress, weiSalePrice);
             await approveTx.wait();
-    
+
             // Mint the token
             const mintTx = await stakingContract.mintTicket();
             await mintTx.wait();
-    
+
             toast.success("Token minted successfully!", {
                 position: toast.POSITION.TOP_RIGHT,
                 autoClose: 5000
             });
-        } catch (error) {
+        } catch (error: any) {
             toast.error(`Error: ${error.message}`, {
                 position: toast.POSITION.TOP_RIGHT,
                 autoClose: 5000
             });
         }
     }
-    
 
     if (isLoading) {
-        return <p>Loading...</p>;  // Display a loading message when isLoading is true
+        return <p>Loading...</p>;
     }
 
-    const fundingProgress = totalFunding ? (parseFloat(totalFunding) / parseFloat(ethers.utils.formatEther(crowdFundingGoal))) * 100 : 0;
+    const fundingProgress = totalFunding ? (parseFloat(totalFunding) / parseFloat(crowdFundingGoal!)) * 100 : 0;
 
     if (!proposal) return <p className="text-white/80">No crowdfunding events</p>;
 
@@ -131,7 +130,7 @@ const CrowdfundingEvents = () => {
                         <div className="w-full h-4 bg-gray-300 rounded">
                             <div style={{ width: `${fundingProgress}%` }} className="h-full bg-blue-500 rounded"></div>
                         </div>
-                        <p>{totalFunding}/{ethers.utils.formatEther(crowdFundingGoal)} ETH</p>
+                        <p>{totalFunding}/{crowdFundingGoal} ETH</p>
                     </div>
                 </div>
             </div>

@@ -20,12 +20,24 @@ const stakingContract = new ethers.Contract(stakingContractAddress, DreamStarter
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+type Proposal = {
+    title: string;
+    description: string;
+};
+
+type UseProposal = {
+    proposal: Proposal | null;
+    votesPercentage: number;
+};
+
+type ExtendedError = Error & { code?: number };
+
 const CrowdfundingEvents = () => {
-    const { proposal, votesPercentage } = useProposal();
-    const [amountToStake, setAmountToStake] = useState('');
-    const [connectedNetwork, setConnectedNetwork] = useState(null);
-    const [crowdFundingGoal, setCrowdFundingGoal] = useState(null);
-    const [isCreatorAlreadyStaked, setIsCreatorAlreadyStaked] = useState(false);
+    const { proposal, votesPercentage }: UseProposal = useProposal();
+    const [amountToStake, setAmountToStake] = useState<string>('');
+    const [connectedNetwork, setConnectedNetwork] = useState<number | null>(null);
+    const [crowdFundingGoal, setCrowdFundingGoal] = useState<ethers.BigNumber | null>(null);
+    const [isCreatorAlreadyStaked, setIsCreatorAlreadyStaked] = useState<boolean>(false);
 
     useEffect(() => {
         async function getNetwork() {
@@ -40,18 +52,21 @@ const CrowdfundingEvents = () => {
             try {
                 const goal = await stakingContract.crowdFundingGoal();
                 console.log("name")
-                console.log(ethers.utils.formatEther(goal)) // Assuming your read function is named "crowdFundingGoal"
+                console.log(ethers.utils.formatEther(goal))
                 setCrowdFundingGoal(goal);
-                
-                // Calculate 20% of the goal
+
                 const calculatedStake = goal.mul(ethers.BigNumber.from("20")).div(ethers.BigNumber.from("100"));
                 setAmountToStake(ethers.utils.formatEther(calculatedStake));
 
             } catch (error) {
-                console.error("Error fetching crowd funding goal:", error.message);
+                if (error instanceof Error) {
+                    console.error("Error fetching crowd funding goal:", error.message);
+                } else {
+                    console.error("Error fetching crowd funding goal:", error);
+                }
             }
         }
-        
+
         fetchCrowdFundingGoal();
     }, [stakingContract]);
 
@@ -59,10 +74,14 @@ const CrowdfundingEvents = () => {
         async function checkIsCreatorStaked() {
             try {
                 const staked = await stakingContract.isCreatorStaked(); 
-                console.log(staked) // Assuming the proposal ID is needed to check
+                console.log(staked)
                 setIsCreatorAlreadyStaked(staked);
             } catch (error) {
-                console.error("Error checking if creator is staked:", error.message);
+                if (error instanceof Error) {
+                    console.error("Error checking if creator is staked:", error.message);
+                } else {
+                    console.error("Error checking if creator is staked:", error);
+                }
             }
         }
 
@@ -81,10 +100,11 @@ const CrowdfundingEvents = () => {
                     params: [{ chainId: '0x13881' }],  // Mumbai Testnet Chain ID
                 });
             } catch (error) {
-                if (error.code === 4902) {
+                const err = error as ExtendedError;
+                if (err.code === 4902) {
                     alert("Please connect to Mumbai testnet manually.");
                 } else {
-                    toast.error(`Error: ${error.message}`, {
+                    toast.error(`Error: ${err.message}`, {
                         position: toast.POSITION.TOP_RIGHT,
                         autoClose: 5000
                     });
@@ -96,11 +116,9 @@ const CrowdfundingEvents = () => {
         try {
             const weiAmount = ethers.utils.parseEther(amountToStake);
 
-            // Approve the staking contract to move the user's tokens
             const approveTx = await erc20Contract.approve(stakingContractAddress, weiAmount);
             await approveTx.wait();
 
-            // Stake the tokens
             const stakeTx = await stakingContract.stake(weiAmount);
             await stakeTx.wait();
 
@@ -109,7 +127,8 @@ const CrowdfundingEvents = () => {
                 autoClose: 5000
             });
         } catch (error) {
-            toast.error(`Error: ${error.message}`, {
+            const err = error as ExtendedError;
+            toast.error(`Error: ${err.message}`, {
                 position: toast.POSITION.TOP_RIGHT,
                 autoClose: 5000
             });

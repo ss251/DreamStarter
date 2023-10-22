@@ -1,8 +1,6 @@
 import React from "react";
 import { Formik, Form, Field, ErrorMessage, FormikProps } from "formik";
-
 import Button from "@/components/common/Button";
-
 import { useProposal } from "@/app/ProposalProvider";
 
 interface FormMessage {
@@ -18,13 +16,22 @@ interface FormMessage {
 const ConvertModal = () => {
   const { proposal } = useProposal();
 
-  const initialValues = proposal ? proposal : {
-    description: "",
+  const initialValues: FormMessage = proposal ? {
+    title: proposal.title,
+    description: proposal.description,
+    priceperNFT: proposal.priceperNFT,
+    funding_goal: proposal.funding_goal,
+    stable_coin_option: "",
+    starting_date: "",
+    ending_date: "",
+  } : {
     title: "",
+    description: "",
     priceperNFT: 0,
     funding_goal: 0,
-    proposal_type: "",
-    date: "",
+    stable_coin_option: "",
+    starting_date: "",
+    ending_date: "",
   };
 
   return (
@@ -45,7 +52,6 @@ const ConvertModal = () => {
                 <div>{values.description}</div>
                 <div>Price Per NFT: {values.priceperNFT}</div>
                 <div>Funding Goal: {values.funding_goal} USDC</div>
-                {/* ------------------------ */}
                 <div>
                   <label htmlFor="stable_coin_option" className="block mb-2">
                     StableCoin for the funding :
@@ -79,9 +85,6 @@ const ConvertModal = () => {
                     />
                   </Field>
                 </div>
-
-                {/* -------------------------------- */}
-                {/* ----------------------  */}
                 <div className="flex gap-6 items-center">
                   <div>
                     <label htmlFor="starting_date" className="block mb-2">
@@ -96,7 +99,6 @@ const ConvertModal = () => {
                       required
                     />
                   </div>
-
                   <div>
                     <label htmlFor="ending_date" className="block mb-2">
                       Ending Date
@@ -111,8 +113,6 @@ const ConvertModal = () => {
                     />
                   </div>
                 </div>
-                {/* ---------------------- */}
-
                 <div className="flex justify-center mt-2">
                   <Button variant="primary" size="md" type="submit">
                     Launch crowdfunding
