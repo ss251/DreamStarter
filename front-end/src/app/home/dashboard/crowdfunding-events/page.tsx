@@ -36,10 +36,11 @@ const CrowdfundingEvents = () => {
     const [connectedNetwork, setConnectedNetwork] = useState<number | null>(null);
     const [crowdFundingGoal, setCrowdFundingGoal] = useState<ethers.BigNumber | null>(null);
     const [isCreatorAlreadyStaked, setIsCreatorAlreadyStaked] = useState<boolean>(false);
+    const [hasUserStaked, setHasUserStaked] = useState<boolean>(false);
 
     useEffect(() => {
         erc20ContractAddress = '0x8563F7BD1fa85cB75EFB8e710D3971dC3e3C5C8b';
-        stakingContractAddress = '0x6E23d299E066996E3f24322A0636786E4c892030';
+        stakingContractAddress = '0xE5E3d7931f3cc9698f5b94ddb2c4791c83569906';
 
         if (typeof window !== 'undefined' && window.ethereum) {
             provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -148,6 +149,43 @@ const CrowdfundingEvents = () => {
         }
     }
 
+    async function handleChangeTime() {
+        try {
+            // Here, I'm using a hardcoded value of 0 for the time. Adjust as needed.
+            const changeTimeTx = await stakingContract.setFundingStartTime(0);
+            await changeTimeTx.wait();
+
+            toast.success("Funding start time changed successfully!", {
+                position: toast.POSITION.TOP_RIGHT,
+                autoClose: 5000
+            });
+        } catch (error) {
+            const err = error as ExtendedError;
+            toast.error(`Error: ${err.message}`, {
+                position: toast.POSITION.TOP_RIGHT,
+                autoClose: 5000
+            });
+        }
+    }
+
+    async function handleWithdrawStake() {
+        try {
+            const withdrawTx = await stakingContract.stakeRefundByOperator();
+            await withdrawTx.wait();
+
+            toast.success("Stake withdrawn successfully!", {
+                position: toast.POSITION.TOP_RIGHT,
+                autoClose: 5000
+            });
+        } catch (error) {
+            const err = error as ExtendedError;
+            toast.error(`Error: ${err.message}`, {
+                position: toast.POSITION.TOP_RIGHT,
+                autoClose: 5000
+            });
+        }
+    }
+
     if (!proposal) return <p className="text-white/80">No crowdfunding events</p>;
 
     return (
@@ -160,7 +198,14 @@ const CrowdfundingEvents = () => {
                 {votesPercentage > 50 && (
                     <div className="mt-4">
                         {isCreatorAlreadyStaked ? (
-                            <p className="text-gray-500">Creator has already staked into this proposal.</p>
+                            <>
+                            <button onClick={handleChangeTime} className="px-4 py-2 bg-blue-500 text-white rounded-md ml-4">
+                                Change Time
+                            </button>
+                            <button onClick={handleWithdrawStake} className="px-4 py-2 bg-blue-500 text-white rounded-md ml-4">
+                                Withdraw Stake
+                            </button>
+                        </>
                         ) : (
                             <>
                                 <input 
@@ -173,12 +218,6 @@ const CrowdfundingEvents = () => {
                                 <div className='flex mt-8'>
                                 <button onClick={handleContribute} className="px-4 py-2 bg-blue-500 text-white rounded-md">
                                     Contribute
-                                </button>
-                                <button onClick={handleContribute} className="px-4 py-2 bg-blue-500 text-white rounded-md ml-4">
-                                    Change Time
-                                </button>
-                                <button onClick={handleContribute} className="px-4 py-2 bg-blue-500 text-white rounded-md ml-4">
-                                    Withdraw Stake
                                 </button>
                                 </div>
                             </>
