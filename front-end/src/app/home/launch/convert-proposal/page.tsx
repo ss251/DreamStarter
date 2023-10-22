@@ -1,10 +1,13 @@
-"use client"
+"use client";
 
 import React, { useState } from "react";
 import Button from "@/components/common/Button";
 import Modal from "@/components/common/Modal";
 import ConvertModal from "@/components/launch/ConvertModal";
+import { useProposal } from "@/app/ProposalProvider";
+
 const ConvertProposal = () => {
+  const { proposal, votesPercentage } = useProposal();
   const [open, setOpen] = useState<boolean>(false);
 
   return (
@@ -12,17 +15,10 @@ const ConvertProposal = () => {
       <div>
         {/* --------------------------------------- proposal card -------------------  */}
         <div className="w-[500px] text-white/80 text-sm border rounded-sm border-white/20 px-4 py-4 flex flex-col gap-4">
-          <div className="">This is Proposal Title</div>
+          <div className="">{proposal?.title}</div>
+          <div>{proposal?.description}</div>
           <div>
-            It is a long established fact that a reader will be distracted by
-            the readable content of a page when looking at its layout. The point
-            of using Lorem Ipsum is that it has a more-or-less normal
-            distribution of letters, as opposed to using 'Content here, content
-            here', making it look like readable English. Many desktop publishing
-            packages and web page editors now use Lorem Ipsum as thei
-          </div>
-          <div>
-            ✅ <strong>70%</strong> of voters love your proposal
+            ✅ <strong>{votesPercentage}%</strong> of voters love your proposal
           </div>
           <div className="flex justify-center mt-2">
             <Button
@@ -46,7 +42,7 @@ const ConvertProposal = () => {
         onCancel={() => setOpen(false)}
         closable={false}
         centered
-        bodyStyle={{ marginInline: "-24px", background: "#121a2e" }}
+        style={{ marginInline: "-24px", background: "#121a2e" }}
       >
         <div className="flex justify-center">
           <ConvertModal />

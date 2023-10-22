@@ -3,6 +3,8 @@ import { Formik, Form, Field, ErrorMessage, FormikProps } from "formik";
 
 import Button from "@/components/common/Button";
 
+import { useProposal } from "@/app/ProposalProvider";
+
 interface FormMessage {
   title: string;
   description: string;
@@ -12,17 +14,19 @@ interface FormMessage {
   starting_date: string;
   ending_date: string;
 }
-const initialValues: FormMessage = {
-  title: "This is Proposal Title",
-  description:
-    "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout.The point of using Lorem Ipsum is that it has a more-or-lessnormal distribution of letters, as opposed to using Contenthere, content here', making it look like readable English.Many desktop publishing packages and web page editors now useLorem Ipsum as thei",
-  priceperNFT: 0.1,
-  funding_goal: 500,
-  stable_coin_option: ``,
-  starting_date: ``,
-  ending_date: ``,
-};
+
 const ConvertModal = () => {
+  const { proposal } = useProposal();
+
+  const initialValues = proposal ? proposal : {
+    description: "",
+    title: "",
+    priceperNFT: 0,
+    funding_goal: 0,
+    proposal_type: "",
+    date: "",
+  };
+
   return (
     <div className="text-sm">
       <Formik

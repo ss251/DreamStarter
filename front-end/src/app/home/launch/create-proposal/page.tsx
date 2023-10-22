@@ -1,8 +1,9 @@
-"use client"
+"use client";
 
 import React from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import Button from "@/components/common/Button";
+import { useProposal } from "@/app/ProposalProvider";
 
 interface FormMessage {
   description: string;
@@ -21,12 +22,14 @@ const initialValues: FormMessage = {
   date: ``,
 };
 const CreateProposal = () => {
+  const { setProposal } = useProposal();
   return (
     <div className="text-sm mt-8">
       <div className="flex justify-center">
         <Formik
           initialValues={initialValues}
           onSubmit={(values, actions) => {
+            setProposal(values);
             console.log({ values, actions });
             alert(JSON.stringify(values, null, 2));
             actions.setSubmitting(false);

@@ -1,36 +1,49 @@
-"use client"
+"use client";
 
 import React, { useState } from "react";
+import { useProposal } from "@/app/ProposalProvider";
 
 import Button from "@/components/common/Button";
 import Link from "next/link";
 
 const OngoingProposal = () => {
   const [selectedValue, setSelectedValue] = useState<any>(null);
+  const { proposal, votes, setVotes, votesPercentage, setVotesPercentage } =
+    useProposal();
+
   const handleSubmit = (e: any) => {
     e.preventDefault();
-    if (!selectedValue) {
-      alert(`Please like or dislike the proposal before clicking on vote`);
-    } else alert(`You voted ${selectedValue}`);
+
+    // Update the votes count based on the user's vote
+    const newVotes = { ...votes };
+    if (selectedValue === "like") {
+      newVotes.likes += 1;
+    } else {
+      newVotes.dislikes += 1;
+    }
+    setVotes(newVotes);
+
+    // Calculate and update the votes percentage
+    const totalVotes = newVotes.likes + newVotes.dislikes;
+    const percentage = (newVotes.likes / totalVotes) * 100;
+    setVotesPercentage(percentage);
+
+    // Display the vote alert
+    alert(`You voted ${selectedValue}`);
   };
+
+  if (!proposal) return <p>No ongoing proposal</p>;
+
   return (
     <div className="flex justify-center mt-8">
       <div>
         {/* --------------------------------------- proposal card -------------------  */}
         <div className="w-[500px] text-white/80 text-sm border rounded-sm border-white/20 px-4 py-4 flex flex-col gap-4">
-          <div className="">This is Proposal Title</div>
-          <div>
-            It is a long established fact that a reader will be distracted by
-            the readable content of a page when looking at its layout. The point
-            of using Lorem Ipsum is that it has a more-or-less normal
-            distribution of letters, as opposed to using 'Content here, content
-            here', making it look like readable English. Many desktop publishing
-            packages and web page editors now use Lorem Ipsum as thei
-          </div>
-
-          <div>Price Per NFT: 0.01 USDC</div>
-          <div>Funding Goal: 500 USDC</div>
-          <div>Valid Till: 15/11/2023</div>
+          <div className="">{proposal.title}</div>
+          <div>{proposal.description}</div>
+          <div>Price Per NFT: {proposal.priceperNFT} USDC</div>
+          <div>Funding Goal: {proposal.funding_goal} USDC</div>
+          <div>Valid Till: {proposal.date}</div>
           <div className="italic">
             Created by{" "}
             <Link
