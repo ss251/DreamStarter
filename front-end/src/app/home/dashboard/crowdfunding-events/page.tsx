@@ -170,9 +170,17 @@ const CrowdfundingEvents = () => {
                                     value={amountToStake}
                                     className="p-2 border rounded-md flex-1 mr-2 text-gray-500"
                                 />
+                                <div className='flex mt-8'>
                                 <button onClick={handleContribute} className="px-4 py-2 bg-blue-500 text-white rounded-md">
                                     Contribute
                                 </button>
+                                <button onClick={handleContribute} className="px-4 py-2 bg-blue-500 text-white rounded-md ml-4">
+                                    Change Time
+                                </button>
+                                <button onClick={handleContribute} className="px-4 py-2 bg-blue-500 text-white rounded-md ml-4">
+                                    Withdraw Stake
+                                </button>
+                                </div>
                             </>
                         )}
                     </div>
